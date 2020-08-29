@@ -1,3 +1,3 @@
 # This is Celeria-music-player.
 
-By Sdds And Asthowen.
+Celeria music player is an software for read music by [Asthowen](https://github.com/Asthowen) and [Pierre-development](https://github.com/Pierre-development) !
