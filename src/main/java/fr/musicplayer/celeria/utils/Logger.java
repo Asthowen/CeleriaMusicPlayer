@@ -1,6 +1,7 @@
 package fr.musicplayer.celeria.utils;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Logger {
     public Logger() {
@@ -10,7 +11,7 @@ public class Logger {
         String datePattern = "[dd/MM/YYYY HH:mm:ss]";
         SimpleDateFormat dateFormat = new SimpleDateFormat(datePattern);
         String date = dateFormat.format(new Date(System.currentTimeMillis()));
-        return "[Celeria]" +  date;
+        return "[Celeria] " +  date;
     }
     public void log(String log){
         System.out.println(getStructure() + " [Log] " + log);

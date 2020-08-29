@@ -1,5 +1,7 @@
 package fr.musicplayer.celeria.music;
 
+import fr.musicplayer.celeria.Main;
+
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
@@ -18,14 +20,13 @@ public class Wav {
         try {
             soundFile = new File(strFilename);
         } catch (Exception e) {
-            e.printStackTrace();
+            Main.logger.error("Error when read wav file : " + e );
         }
 
         try {
             audioStream = AudioSystem.getAudioInputStream(soundFile);
         } catch (Exception e){
-            e.printStackTrace();
-            System.exit(1);
+            Main.logger.error("Error when audio input : " + e );
         }
 
         audioFormat = audioStream.getFormat();
@@ -33,10 +34,10 @@ public class Wav {
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         try {
             sourceLine = (SourceDataLine) AudioSystem.getLine(info);
+            System.out.println(sourceLine);
             sourceLine.open(audioFormat);
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(1);
         }
 
         sourceLine.start();

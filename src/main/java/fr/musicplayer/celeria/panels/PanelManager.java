@@ -1,4 +1,4 @@
-package fr.musicplayer.celeria.panel;
+package fr.musicplayer.celeria.panels;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
@@ -12,6 +12,8 @@ public class PanelManager {
 
     private Dimension screenSize;
     private GridPane layout;
+    private GridPane centerPanel = new GridPane();
+
 
 
 
@@ -27,8 +29,10 @@ public class PanelManager {
         this.stage.centerOnScreen();
         this.layout = new GridPane();
         this.stage.show();
-
         this.stage.setScene(new Scene(this.layout));
 
+
     }
+
+
 }
