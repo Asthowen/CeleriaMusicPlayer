@@ -1,6 +1,6 @@
 package fr.musicplayer.celeria;
 
-import fr.musicplayer.celeria.panels.PanelManager;
+import fr.musicplayer.celeria.panels.util.PanelManager;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
