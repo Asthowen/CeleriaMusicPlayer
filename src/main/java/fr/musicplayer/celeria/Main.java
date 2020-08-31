@@ -9,7 +9,7 @@ import javax.swing.*;
 public class Main {
     public static Logger logger = new Logger();
     public static void main(String[] args) {
-        //Wav.playMusic("/mnt/sda2/Téléchargements/mp3/lmusic.wav");
+
         try {
             Class.forName("javafx.application.Application");
         } catch (ClassNotFoundException e) {
