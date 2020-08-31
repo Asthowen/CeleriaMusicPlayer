@@ -1,6 +1,5 @@
 package fr.musicplayer.celeria.panels.util;
 
-import fr.musicplayer.celeria.panels.PanelManager;
 import javafx.animation.FadeTransition;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -8,25 +7,25 @@ import javafx.util.Duration;
 
 public class Panel implements IPanel{
 
-    protected GridPane gridPane = new GridPane();
+    protected GridPane layout = new GridPane();
     protected PanelManager panelManager;
 
     @Override
     public void init(PanelManager panelManager){
         this.panelManager = panelManager;
-        GridPane.setHgrow(gridPane, Priority.ALWAYS);
-        GridPane.setVgrow(gridPane, Priority.ALWAYS);
+        GridPane.setHgrow(layout, Priority.ALWAYS);
+        GridPane.setVgrow(layout, Priority.ALWAYS);
 
     }
 
     @Override
     public GridPane getLayout() {
-        return gridPane;
+        return layout;
     }
 
     @Override
     public void onShow() {
-        FadeTransition transition = new FadeTransition(Duration.seconds(1.2), this.gridPane);
+        FadeTransition transition = new FadeTransition(Duration.seconds(1.2), this.layout);
         transition.setFromValue(0);
         transition.setToValue(1);
         transition.setAutoReverse(true);

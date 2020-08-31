@@ -1,6 +1,5 @@
 package fr.musicplayer.celeria.panels.util;
 
-import fr.musicplayer.celeria.panels.PanelManager;
 import javafx.scene.layout.GridPane;
 
 public interface IPanel {
