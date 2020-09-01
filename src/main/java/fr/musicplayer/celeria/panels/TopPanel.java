@@ -18,8 +18,6 @@ public class TopPanel extends Panel {
 
     @Override
     public void init(PanelManager panelManager) {
-
-
         super.init(panelManager);
 
         this.topBar = this.layout;
@@ -28,9 +26,11 @@ public class TopPanel extends Panel {
         GridPane.setVgrow(iconView, Priority.ALWAYS);
         GridPane.setHalignment(iconView, HPos.LEFT);
         GridPane.setValignment(iconView, VPos.TOP);
-        iconView.setScaleX(0.08D);
-        iconView.setScaleY(0.08D);
-        //this.topBar.getChildren().add(iconView);
+        iconView.setTranslateX(6);
+        iconView.setTranslateY(5);
+        iconView.setFitHeight(21.0D);
+        iconView.setPreserveRatio(true);
+        this.topBar.getChildren().add(iconView);
 
 
 
