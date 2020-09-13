@@ -10,8 +10,8 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'com.jfoenix:jfoenix:8.0.10'
-    compile group: 'de.jensd', name: 'fontawesomefx', version: '8.9'
+    testImplementation 'junit:junit:+'
+    implementation 'com.jfoenix:jfoenix:8.0.10'
+    implementation group: 'de.jensd', name: 'fontawesomefx', version: '+'
 
 }
