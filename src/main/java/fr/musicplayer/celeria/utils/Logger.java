@@ -1,8 +1,6 @@
 package fr.musicplayer.celeria.utils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -10,7 +8,12 @@ public class Logger {
     public Logger() {
     }
 
-    private File homeDirectory = new File(System.getProperty("user.home") +"/.Celeria/Logs/");
+    public File homeDirectory = new File(System.getProperty("user.home") +"/.Celeria/Logs/");
+
+    public File getHomeDirectory() {
+        return homeDirectory;
+    }
+
     private String getStructure(){
         String datePattern = "[dd/MM/YYYY HH:mm:ss]";
         SimpleDateFormat dateFormat = new SimpleDateFormat(datePattern);
@@ -26,10 +29,12 @@ public class Logger {
             }
         }
         try{
-            PrintWriter writer = new PrintWriter(homeDirectory + "/Logs.log");
-            writer.println(getStructure() + data);
-            writer.close();
-        } catch (FileNotFoundException e) {
+            FileWriter fw = new FileWriter(homeDirectory + "/Logs.log",true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(getStructure() + data);
+            bw.newLine();
+            bw.close();
+        } catch (IOException e) {
             error(String.valueOf(e));
         }
 
