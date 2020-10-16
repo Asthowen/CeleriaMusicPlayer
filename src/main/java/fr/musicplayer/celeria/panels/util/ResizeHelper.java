@@ -1,5 +1,5 @@
 
-package fr.musicplayer.celeria;
+package fr.musicplayer.celeria.panels.util;
 
 import java.util.Iterator;
 import javafx.collections.ObservableList;

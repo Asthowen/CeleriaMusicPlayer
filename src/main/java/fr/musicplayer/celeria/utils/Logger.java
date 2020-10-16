@@ -8,11 +8,6 @@ public class Logger {
     public Logger() {
     }
 
-    public File homeDirectory = new File(System.getProperty("user.home") +"/.Celeria/Logs/");
-
-    public File getHomeDirectory() {
-        return homeDirectory;
-    }
 
     private String getStructure(){
         String datePattern = "[dd/MM/YYYY HH:mm:ss]";
@@ -21,15 +16,15 @@ public class Logger {
         return "[Celeria] " +  date;
     }
     private void writeLog(String data){
-        if (!homeDirectory.exists()){
-            if (homeDirectory.mkdirs()){
+        if (!Utils.returnPathForAllSystem(".Celeria/Logs/").exists()){
+            if (Utils.returnPathForAllSystem(".Celeria/Logs/").mkdirs()){
                 log("Log file successfully created !");
             }else{
                 error("Error when create the log file");
             }
         }
         try{
-            FileWriter fw = new FileWriter(homeDirectory + "/Logs.log",true);
+            FileWriter fw = new FileWriter(Utils.returnPathForAllSystem(".Celeria/Logs/Logs.log"),true);
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(getStructure() + data);
             bw.newLine();
