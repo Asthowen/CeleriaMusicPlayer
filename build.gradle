@@ -1,17 +1,29 @@
 plugins {
-    id 'java'
+    id 'java-library'
 }
 
 group 'fr.musicplayer.celeria'
-version '1.0-SNAPSHOT'
+version '0.1'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation 'junit:junit:+'
     implementation 'com.jfoenix:jfoenix:8.0.10'
     implementation group: 'de.jensd', name: 'fontawesomefx', version: '+'
+}
+compileJava{
+    options.encoding = "utf-8"
+}
 
+jar{
+    manifest {
+        attributes 'Main-Class': 'fr.musicplayer.celeria.Main'
+    }
+    from{
+        configurations.compileClasspath.collect{
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
 }

@@ -1,7 +1,6 @@
 package fr.musicplayer.celeria.panels.util;
 
-import fr.musicplayer.celeria.ResizeHelper;
-import fr.musicplayer.celeria.panels.TopPanel;
+import fr.musicplayer.celeria.panels.includes.TopPanel;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -63,7 +62,15 @@ public class PanelManager {
 
     }
 
+
+
     public Stage getStage() {
         return stage;
+    }
+    public void showPanel(IPanel panel) {
+        this.centerPanel.getChildren().clear();
+        this.centerPanel.getChildren().add(panel.getLayout());
+        panel.init(this);
+        panel.onShow();
     }
 }

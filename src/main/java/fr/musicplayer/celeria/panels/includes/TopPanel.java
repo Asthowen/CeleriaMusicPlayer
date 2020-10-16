@@ -1,4 +1,4 @@
-package fr.musicplayer.celeria.panels;
+package fr.musicplayer.celeria.panels.includes;
 
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
