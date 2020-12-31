@@ -1,5 +1,6 @@
 package fr.musicplayer.celeria.panels.includes;
 
+import com.jfoenix.controls.JFXProgressBar;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import fr.musicplayer.celeria.panels.util.Panel;
@@ -12,19 +13,21 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
 public class BottomPanel extends Panel {
 
     private GridPane bottomPanel;
-    private ImageView coverImage = new ImageView();
+    private Rectangle coverImage = new Rectangle();
     private Label trackName = new Label();
     private Label trackAuthor = new Label();
     private MaterialDesignIconView play = new MaterialDesignIconView(MaterialDesignIcon.PAUSE);
     private MaterialDesignIconView skipNext = new MaterialDesignIconView(MaterialDesignIcon.SKIP_NEXT);
     private MaterialDesignIconView skipPrevious = new MaterialDesignIconView(MaterialDesignIcon.SKIP_PREVIOUS);
-    private MaterialDesignIconView sound = new MaterialDesignIconView(MaterialDesignIcon.SOUNDCLOUD);
-
+    private MaterialDesignIconView sound = new MaterialDesignIconView(MaterialDesignIcon.VOLUME_HIGH);
+    private JFXProgressBar progressSoundBar = new JFXProgressBar();
 
 
     @Override
@@ -35,25 +38,27 @@ public class BottomPanel extends Panel {
         GridPane.setValignment(bottomPanel, VPos.BOTTOM);
 
 
-        ImageView iconView = new ImageView(getClass().getResource("/backgroundPlayer.png").toExternalForm());
+        ImageView iconView = new ImageView(getClass().getResource("/image/backgroundPlayer.png").toExternalForm());
         GridPane.setHgrow(iconView, Priority.ALWAYS);
         GridPane.setVgrow(iconView, Priority.ALWAYS);
         GridPane.setHalignment(iconView, HPos.LEFT);
         GridPane.setValignment(iconView, VPos.BOTTOM);
         this.bottomPanel.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #053F5A, #053F5A, #006050);");
         this.bottomPanel.setMinHeight(80.0d);
+        this.getLayout().getStylesheets().add(getClass().getResource("/css/BottomPanel.css").toExternalForm());
 
 
-        GridPane topBarButton = new GridPane();
-        this.layout.getChildren().add(topBarButton);
 
-        topBarButton.setMinHeight(80.0d);
-        topBarButton.setMaxHeight(80.0d);
+        GridPane bottomBarButton = new GridPane();
+        this.layout.getChildren().add(bottomBarButton);
 
-        GridPane.setHalignment(topBarButton, HPos.RIGHT);
-        GridPane.setValignment(topBarButton, VPos.BOTTOM);
-        GridPane.setHgrow(topBarButton, Priority.ALWAYS);
-        GridPane.setVgrow(topBarButton, Priority.ALWAYS);
+        bottomBarButton.setMinHeight(80.0d);
+        bottomBarButton.setMaxHeight(80.0d);
+
+        GridPane.setHalignment(bottomBarButton, HPos.RIGHT);
+        GridPane.setValignment(bottomBarButton, VPos.BOTTOM);
+        GridPane.setHgrow(bottomBarButton, Priority.ALWAYS);
+        GridPane.setVgrow(bottomBarButton, Priority.ALWAYS);
 
         GridPane.setHgrow(coverImage, Priority.ALWAYS);
         GridPane.setVgrow(coverImage, Priority.ALWAYS);
@@ -65,15 +70,20 @@ public class BottomPanel extends Panel {
         GridPane.setVgrow(skipNext, Priority.ALWAYS);
         GridPane.setHgrow(skipPrevious, Priority.ALWAYS);
         GridPane.setVgrow(skipPrevious, Priority.ALWAYS);
+        GridPane.setHgrow(progressSoundBar, Priority.ALWAYS);
+        GridPane.setVgrow(progressSoundBar, Priority.ALWAYS);
 
-        coverImage.setFitWidth(60);
-        coverImage.setPreserveRatio(true);
+        coverImage.setWidth(60);
+        coverImage.setHeight(60);
+        coverImage.setArcWidth(30.0d);
+        coverImage.setArcHeight(30.0d);
+        coverImage.setFill(new ImagePattern(new Image(getClass().getResource("/image/tempAlbumCover.jpg").toExternalForm())));
         coverImage.setOnMouseEntered(e -> coverImage.setOpacity(0.8f));
         coverImage.setOnMouseExited(e -> coverImage.setOpacity(1.0f));
-        coverImage.setImage(new Image(getClass().getResource("/tempAlbumCover.jpg").toExternalForm()));
         coverImage.setTranslateX(25.0d);
         GridPane.setHalignment(coverImage, HPos.LEFT);
         GridPane.setValignment(coverImage, VPos.CENTER);
+
 
         trackName.setText("That Song");
         trackName.setStyle("-fx-text-fill: white;-fx-font-weight: bold;");
@@ -125,11 +135,22 @@ public class BottomPanel extends Panel {
         sound.setOpacity(0.70f);
         sound.setSize("25.0px");
         sound.setOpacity(0.50f);
+        sound.setTranslateX(-175.0d);
         GridPane.setHalignment(sound, HPos.RIGHT);
         GridPane.setValignment(sound, VPos.CENTER);
 
+        progressSoundBar.setTranslateY(-3.0d);
+        progressSoundBar.setStyle("-fx-background-color: black;");
+        progressSoundBar.setMinWidth(panelManager.getStage().getWidth());
+        progressSoundBar.setProgress(0.1);
+        GridPane.setHalignment(progressSoundBar, HPos.LEFT);
+        GridPane.setValignment(progressSoundBar, VPos.TOP);
 
-        topBarButton.getChildren().addAll(coverImage, trackName, trackAuthor, skipPrevious, play, skipNext, sound);
+        panelManager.getStage().widthProperty().addListener(e -> progressSoundBar.setMinWidth(panelManager.getStage().getWidth()));
+
+
+
+        bottomBarButton.getChildren().addAll(coverImage, trackName, trackAuthor, skipPrevious, play, skipNext, sound, progressSoundBar);
     }
     public MaterialDesignIconView getPlay() {
         return play;
@@ -143,7 +164,7 @@ public class BottomPanel extends Panel {
         return skipPrevious;
     }
 
-    public ImageView getCoverImage() {
+    public Rectangle getCoverImage() {
         return coverImage;
     }
 
@@ -153,5 +174,9 @@ public class BottomPanel extends Panel {
 
     public Label getTrackAuthor() {
         return trackAuthor;
+    }
+
+    public JFXProgressBar getProgressSoundBar() {
+        return progressSoundBar;
     }
 }
