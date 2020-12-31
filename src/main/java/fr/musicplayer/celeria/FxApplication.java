@@ -11,7 +11,5 @@ public class FxApplication extends Application {
         PanelManager panelManager = new PanelManager(stage);
         panelManager.init();
         panelManager.showPanel(new AlbumsPanel());
-
-
     }
 }
