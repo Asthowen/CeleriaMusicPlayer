@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     implementation 'com.jfoenix:jfoenix:8.0.10'
-    implementation group: 'de.jensd', name: 'fontawesomefx', version: '+'
+    implementation 'de.jensd:fontawesomefx:+'
 }
 compileJava{
     options.encoding = "utf-8"
