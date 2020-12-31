@@ -7,7 +7,7 @@ Celeria music player is an software for read and manage music.
 * [**JFoenix**](https://github.com/jfoenixadmin/JFoenix)
 * [**FontAwesomeFx**](https://bitbucket.org/Jerady/fontawesomefx/src/master/)
 
-##Versions
+## Versions
 
 * Actual version : 0.1
 * Last release : nothing
