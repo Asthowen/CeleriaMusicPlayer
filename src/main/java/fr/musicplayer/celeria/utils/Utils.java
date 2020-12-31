@@ -3,7 +3,7 @@ package fr.musicplayer.celeria.utils;
 import java.io.File;
 
 public class Utils {
-    public static File returnPathForAllSystem(String path){
+    public static File returnHomeForOS(String path){
         File folder;
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win"))

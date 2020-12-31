@@ -1,5 +1,6 @@
 package fr.musicplayer.celeria.panels.util;
 
+import fr.musicplayer.celeria.panels.includes.BottomPanel;
 import fr.musicplayer.celeria.panels.includes.TopPanel;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
@@ -16,11 +17,10 @@ public class PanelManager {
     private final Stage stage;
 
     private TopPanel topPanel = new TopPanel();
+    private BottomPanel bottomPanel = new BottomPanel();
     private GridPane layout;
     private GridPane centerPanel = new GridPane();
-    public static Image icon = new Image(PanelManager.class.getResource("/logo.png").toExternalForm());
-
-
+    public Image icon = new Image(PanelManager.class.getResource("/logo.png").toExternalForm());
 
 
     public PanelManager(Stage stage) {
@@ -31,11 +31,9 @@ public class PanelManager {
         GraphicsDevice screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int width = screen.getDisplayMode().getWidth();
         int height = screen.getDisplayMode().getHeight();
-        System.out.println(width);
-        System.out.println(height - height / 16);
         this.stage.initStyle(StageStyle.UNDECORATED);
-        this.stage.setWidth(width - width / 16);
-        this.stage.setHeight(height - height / 16);
+        this.stage.setWidth(width - (width >> 4));
+        this.stage.setHeight(height - (height >> 4));
         this.stage.centerOnScreen();
         this.stage.setTitle("Celeria Music Player");
         this.layout = new GridPane();
@@ -58,8 +56,16 @@ public class PanelManager {
         this.layout.add(this.centerPanel, 0, 1);
         GridPane.setVgrow(this.centerPanel, Priority.ALWAYS);
         GridPane.setHgrow(this.centerPanel, Priority.ALWAYS);
-        ResizeHelper.addResizeListener(this.stage);
 
+        RowConstraints bottomPanelConstraints = new RowConstraints();
+        bottomPanelConstraints.setValignment(VPos.BOTTOM);
+        bottomPanelConstraints.setMinHeight(60);
+        bottomPanelConstraints.setMaxHeight(60);
+        this.layout.getRowConstraints().addAll(bottomPanelConstraints, new RowConstraints());
+        this.layout.add(this.bottomPanel.getLayout(), 0, 2);
+        this.bottomPanel.init(this);
+
+        ResizeHelper.addResizeListener(this.stage);
     }
 
 
@@ -67,6 +73,7 @@ public class PanelManager {
     public Stage getStage() {
         return stage;
     }
+
     public void showPanel(IPanel panel) {
         this.centerPanel.getChildren().clear();
         this.centerPanel.getChildren().add(panel.getLayout());
