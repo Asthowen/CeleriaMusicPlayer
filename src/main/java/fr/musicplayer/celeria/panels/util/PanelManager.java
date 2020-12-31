@@ -20,7 +20,7 @@ public class PanelManager {
     private BottomPanel bottomPanel = new BottomPanel();
     private GridPane layout;
     private GridPane centerPanel = new GridPane();
-    public Image icon = new Image(PanelManager.class.getResource("/logo.png").toExternalForm());
+    public Image icon = new Image(PanelManager.class.getResource("/image/logo.png").toExternalForm());
 
 
     public PanelManager(Stage stage) {
@@ -42,7 +42,7 @@ public class PanelManager {
 
         this.stage.getIcons().add(this.icon);
 
-        this.layout.setStyle("-fx-background-image: url('" + getClass().getResource("/main.png") + "');-fx-backgound-repeat: skretch;-fx-backgound-position: center center;-fx-background-size: cover;");
+        this.layout.setStyle("-fx-background-image: url('" + getClass().getResource("/image/main.png") + "');-fx-backgound-repeat: skretch;-fx-backgound-position: center center;-fx-background-size: cover;");
 
         RowConstraints topPanelConstraints = new RowConstraints();
         topPanelConstraints.setValignment(VPos.TOP);
