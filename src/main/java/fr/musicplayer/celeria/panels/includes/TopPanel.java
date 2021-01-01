@@ -25,6 +25,8 @@ public class TopPanel extends Panel {
         this.topBar = this.layout;
         this.topBar.setMinHeight(40.0d);
         this.topBar.setMaxHeight(40.0d);
+        GridPane.setHgrow(topBar, Priority.ALWAYS);
+        GridPane.setVgrow(topBar, Priority.ALWAYS);
 
         ImageView iconView = new ImageView(panelManager.icon);
         GridPane.setHgrow(iconView, Priority.ALWAYS);

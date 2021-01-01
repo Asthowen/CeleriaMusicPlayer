@@ -1,6 +1,7 @@
 package fr.musicplayer.celeria.panels.util;
 
 import fr.musicplayer.celeria.panels.includes.BottomPanel;
+import fr.musicplayer.celeria.panels.includes.LeftPanel;
 import fr.musicplayer.celeria.panels.includes.TopPanel;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
@@ -18,6 +19,7 @@ public class PanelManager {
 
     private TopPanel topPanel = new TopPanel();
     private BottomPanel bottomPanel = new BottomPanel();
+    private LeftPanel leftPanel = new LeftPanel();
     private GridPane layout;
     private GridPane centerPanel = new GridPane();
     public Image icon = new Image(PanelManager.class.getResource("/image/logo.png").toExternalForm());
@@ -44,6 +46,12 @@ public class PanelManager {
 
         this.layout.setStyle("-fx-background-image: url('" + getClass().getResource("/image/main.png") + "');-fx-backgound-repeat: skretch;-fx-backgound-position: center center;-fx-background-size: cover;");
 
+        RowConstraints leftPanelConstraints = new RowConstraints();
+        leftPanelConstraints.setValignment(VPos.TOP);
+        this.layout.getRowConstraints().addAll(leftPanelConstraints, new RowConstraints());
+        this.layout.add(this.leftPanel.getLayout(), 0, 0);
+        this.leftPanel.init(this);
+
         RowConstraints topPanelConstraints = new RowConstraints();
         topPanelConstraints.setValignment(VPos.TOP);
         topPanelConstraints.setMinHeight(25);
@@ -59,11 +67,13 @@ public class PanelManager {
 
         RowConstraints bottomPanelConstraints = new RowConstraints();
         bottomPanelConstraints.setValignment(VPos.BOTTOM);
-        bottomPanelConstraints.setMinHeight(60);
-        bottomPanelConstraints.setMaxHeight(60);
         this.layout.getRowConstraints().addAll(bottomPanelConstraints, new RowConstraints());
         this.layout.add(this.bottomPanel.getLayout(), 0, 2);
         this.bottomPanel.init(this);
+
+
+
+
 
         ResizeHelper.addResizeListener(this.stage);
     }
