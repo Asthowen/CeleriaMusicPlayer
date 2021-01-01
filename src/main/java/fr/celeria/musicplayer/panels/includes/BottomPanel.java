@@ -18,7 +18,6 @@ import javafx.scene.text.Font;
 
 public class BottomPanel extends Panel
 {
-
     private GridPane bottomPanel;
     private Rectangle coverImage = new Rectangle();
     private Label trackName = new Label();
@@ -141,8 +140,6 @@ public class BottomPanel extends Panel
         GridPane.setValignment(progressSoundBar, VPos.TOP);
 
         panelManager.getStage().widthProperty().addListener(e -> progressSoundBar.setMinWidth(panelManager.getStage().getWidth()));
-
-
 
         bottomBarButton.getChildren().addAll(coverImage, trackName, trackAuthor, skipPrevious, play, skipNext, sound, progressSoundBar);
     }

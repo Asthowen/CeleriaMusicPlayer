@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 public class FxApplication extends Application {
     @Override
     public void start(Stage stage) {
-        PanelManager panelManager = new PanelManager(stage);
+        final PanelManager panelManager = new PanelManager(stage);
         panelManager.init();
         panelManager.showPanel(new AlbumsPanel());
     }
