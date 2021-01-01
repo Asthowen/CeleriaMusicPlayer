@@ -1,17 +1,16 @@
 package fr.celeria.musicplayer.utils;
 
+import fr.flowarg.flowcompat.Platform;
+
 import java.io.File;
 
 public class Utils {
-    public static File returnHomeForOS(String path){
+    public static File returnHomeForOS(String path) {
         File folder;
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("win"))
-            folder = new File(System.getProperty("user.home") + "\\AppData\\Roaming\\" + path.replace("/", "\\"));
-        else if (os.contains("mac"))
-            folder =  new File(System.getProperty("user.home") + "/Library/Application Support/" + path);
-        else
-            folder =  new File(System.getProperty("user.home") + "/" + path);
+        if (Platform.isOnWindows()) folder = new File(System.getenv("APPDATA"), path.replace("/", File.separator));
+        else if (Platform.isOnMac()) folder =  new File(System.getProperty("user.home") + "/Library/Application Support/" + path);
+        else folder =  new File(System.getProperty("user.home") + File.separator + path);
+
         return folder;
     }
 }

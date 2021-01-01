@@ -28,24 +28,20 @@ public class Logger {
         } catch (IOException e) {
             error(String.valueOf(e));
         }
-
     }
 
     public void log(String log){
         System.out.println(getStructure() + " [Log] " + log);
         writeLog(" [Log] " + log);
-
     }
 
     public void warn(String warn){
         System.out.println(getStructure() + " [Warn] " + warn);
         writeLog(" [Warn] " + warn);
-
     }
 
     public void error(String error){
         System.err.println(getStructure() + " [Critical Error] " + error);
         writeLog(" [Critical Error] " + error);
     }
-
 }

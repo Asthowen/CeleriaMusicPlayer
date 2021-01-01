@@ -7,10 +7,8 @@ import javafx.geometry.VPos;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-
 public class LeftPanel extends Panel
 {
-
     private GridPane leftPanel;
 
     @Override
@@ -36,9 +34,6 @@ public class LeftPanel extends Panel
         GridPane.setValignment(leftPanelButtons, VPos.BOTTOM);
         GridPane.setHgrow(leftPanelButtons, Priority.ALWAYS);
         GridPane.setVgrow(leftPanelButtons, Priority.ALWAYS);
-
-
-
 
         leftPanelButtons.getChildren().addAll();
     }

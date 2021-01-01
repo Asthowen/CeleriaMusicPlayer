@@ -15,6 +15,7 @@ repositories {
 dependencies {
     implementation 'com.jfoenix:jfoenix:8.0.10'
     implementation 'de.jensd:fontawesomefx:8.9'
+    implementation 'fr.flowarg:flowmultitools:1.2.+'
 }
 compileJava{
     options.encoding = 'UTF-8'
