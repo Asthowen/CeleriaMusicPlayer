@@ -28,6 +28,6 @@ shadowJar {
 
 jar{
     manifest {
-        attributes 'Main-Class': 'fr.musicplayer.celeria.Main'
+        attributes 'Main-Class': 'fr.celeria.musicplayer.Main'
     }
 }
