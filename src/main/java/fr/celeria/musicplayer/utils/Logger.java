@@ -1,4 +1,4 @@
-package fr.musicplayer.celeria.utils;
+package fr.celeria.musicplayer.utils;
 
 import java.io.*;
 import java.text.SimpleDateFormat;

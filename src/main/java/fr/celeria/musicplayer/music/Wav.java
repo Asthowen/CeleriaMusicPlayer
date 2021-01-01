@@ -1,6 +1,6 @@
-package fr.musicplayer.celeria.music;
+package fr.celeria.musicplayer.music;
 
-import fr.musicplayer.celeria.Main;
+import fr.celeria.musicplayer.Main;
 
 import javax.sound.sampled.*;
 import java.io.File;

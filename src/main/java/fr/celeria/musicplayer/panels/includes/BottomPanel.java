@@ -1,15 +1,14 @@
-package fr.musicplayer.celeria.panels.includes;
+package fr.celeria.musicplayer.panels.includes;
 
 import com.jfoenix.controls.JFXProgressBar;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
-import fr.musicplayer.celeria.panels.util.Panel;
-import fr.musicplayer.celeria.panels.util.PanelManager;
+import fr.celeria.musicplayer.panels.util.Panel;
+import fr.celeria.musicplayer.panels.util.PanelManager;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
@@ -17,7 +16,8 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
-public class BottomPanel extends Panel {
+public class BottomPanel extends Panel
+{
 
     private GridPane bottomPanel;
     private Rectangle coverImage = new Rectangle();

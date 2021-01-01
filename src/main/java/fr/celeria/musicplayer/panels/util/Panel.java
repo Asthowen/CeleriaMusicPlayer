@@ -1,4 +1,4 @@
-package fr.musicplayer.celeria.panels.util;
+package fr.celeria.musicplayer.panels.util;
 
 import javafx.animation.FadeTransition;
 import javafx.scene.layout.GridPane;
