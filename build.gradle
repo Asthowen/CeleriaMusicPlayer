@@ -1,29 +1,32 @@
 plugins {
-    id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
-group 'fr.musicplayer.celeria'
+apply plugin: 'java-library'
+apply plugin: 'idea'
+
+group 'fr.celeria.musicplayer'
 version '0.1'
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
     implementation 'com.jfoenix:jfoenix:8.0.10'
-    implementation 'de.jensd:fontawesomefx:+'
+    implementation 'de.jensd:fontawesomefx:8.9'
 }
 compileJava{
-    options.encoding = "utf-8"
+    options.encoding = 'UTF-8'
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8 
+}
+
+shadowJar {
+    classifier 'with-dependencies'
 }
 
 jar{
     manifest {
         attributes 'Main-Class': 'fr.musicplayer.celeria.Main'
-    }
-    from{
-        configurations.compileClasspath.collect{
-            it.isDirectory() ? it : zipTree(it)
-        }
     }
 }
