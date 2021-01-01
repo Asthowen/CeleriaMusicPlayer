@@ -36,18 +36,12 @@ public class BottomPanel extends Panel {
 
         this.bottomPanel = this.layout;
         GridPane.setValignment(bottomPanel, VPos.BOTTOM);
+        GridPane.setHgrow(bottomPanel, Priority.ALWAYS);
+        GridPane.setVgrow(bottomPanel, Priority.ALWAYS);
 
-
-        ImageView iconView = new ImageView(getClass().getResource("/image/backgroundPlayer.png").toExternalForm());
-        GridPane.setHgrow(iconView, Priority.ALWAYS);
-        GridPane.setVgrow(iconView, Priority.ALWAYS);
-        GridPane.setHalignment(iconView, HPos.LEFT);
-        GridPane.setValignment(iconView, VPos.BOTTOM);
         this.bottomPanel.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #053F5A, #053F5A, #006050);");
         this.bottomPanel.setMinHeight(80.0d);
         this.getLayout().getStylesheets().add(getClass().getResource("/css/BottomPanel.css").toExternalForm());
-
-
 
         GridPane bottomBarButton = new GridPane();
         this.layout.getChildren().add(bottomBarButton);
