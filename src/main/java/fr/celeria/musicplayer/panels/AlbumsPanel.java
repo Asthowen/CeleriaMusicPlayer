@@ -1,7 +1,7 @@
-package fr.musicplayer.celeria.panels;
+package fr.celeria.musicplayer.panels;
 
-import fr.musicplayer.celeria.panels.util.Panel;
-import fr.musicplayer.celeria.panels.util.PanelManager;
+import fr.celeria.musicplayer.panels.util.Panel;
+import fr.celeria.musicplayer.panels.util.PanelManager;
 
 
 public class AlbumsPanel extends Panel {

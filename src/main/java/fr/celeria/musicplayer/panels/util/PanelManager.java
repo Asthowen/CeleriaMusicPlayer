@@ -1,8 +1,8 @@
-package fr.musicplayer.celeria.panels.util;
+package fr.celeria.musicplayer.panels.util;
 
-import fr.musicplayer.celeria.panels.includes.BottomPanel;
-import fr.musicplayer.celeria.panels.includes.LeftPanel;
-import fr.musicplayer.celeria.panels.includes.TopPanel;
+import fr.celeria.musicplayer.panels.includes.BottomPanel;
+import fr.celeria.musicplayer.panels.includes.LeftPanel;
+import fr.celeria.musicplayer.panels.includes.TopPanel;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;

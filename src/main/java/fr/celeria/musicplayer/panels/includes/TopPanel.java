@@ -1,9 +1,9 @@
-package fr.musicplayer.celeria.panels.includes;
+package fr.celeria.musicplayer.panels.includes;
 
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
-import fr.musicplayer.celeria.panels.util.Panel;
-import fr.musicplayer.celeria.panels.util.PanelManager;
+import fr.celeria.musicplayer.panels.util.Panel;
+import fr.celeria.musicplayer.panels.util.PanelManager;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Label;
@@ -13,7 +13,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-public class TopPanel extends Panel {
+public class TopPanel extends Panel
+{
 
     private GridPane topBar;
 

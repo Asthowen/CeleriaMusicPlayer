@@ -1,14 +1,15 @@
-package fr.musicplayer.celeria.panels.includes;
+package fr.celeria.musicplayer.panels.includes;
 
-import fr.musicplayer.celeria.panels.util.Panel;
-import fr.musicplayer.celeria.panels.util.PanelManager;
+import fr.celeria.musicplayer.panels.util.Panel;
+import fr.celeria.musicplayer.panels.util.PanelManager;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 
-public class LeftPanel extends Panel {
+public class LeftPanel extends Panel
+{
 
     private GridPane leftPanel;
 

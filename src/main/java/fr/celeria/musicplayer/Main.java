@@ -1,8 +1,8 @@
-package fr.musicplayer.celeria;
+package fr.celeria.musicplayer;
 
 
-import fr.musicplayer.celeria.utils.Logger;
-import fr.musicplayer.celeria.utils.Utils;
+import fr.celeria.musicplayer.utils.Logger;
+import fr.celeria.musicplayer.utils.Utils;
 import javafx.application.Application;
 
 import javax.swing.*;
