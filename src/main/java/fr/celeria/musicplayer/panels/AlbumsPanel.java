@@ -18,7 +18,11 @@ public class AlbumsPanel extends Panel {
         // Test for playing a wav file.
         final FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("WAV", "*.wav"));
-        fileChooser.setTitle("Open a WAV File");
+        //TODO: Make all codecs.
+        //fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("MP3", "*.mp3"));
+        //fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("OGG Vorbis", "*.ogg"));
+        //fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Flac", "*.flac", "*.flc"));
+        fileChooser.setTitle("Open a sound File");
         final File selected = fileChooser.showOpenDialog(panelManager.getStage());
         final FileMetadata metadata = new FileMetadata(selected);
         final BottomPanel bottomPanel = panelManager.getBottomPanel();

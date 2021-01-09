@@ -16,6 +16,9 @@ dependencies {
     implementation 'com.jfoenix:jfoenix:8.0.10'
     implementation 'de.jensd:fontawesomefx:8.9'
     implementation 'fr.flowarg:flowmultitools:1.2.+'
+    implementation 'com.googlecode.soundlibs:tritonus-share:0.3.7.4'
+    implementation 'com.googlecode.soundlibs:vorbisspi:1.0.3.3'
+    implementation 'com.googlecode.soundlibs:mp3spi:1.9.5.4'
 }
 compileJava{
     options.encoding = 'UTF-8'
