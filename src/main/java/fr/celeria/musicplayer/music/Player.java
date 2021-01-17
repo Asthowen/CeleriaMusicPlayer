@@ -2,7 +2,11 @@ package fr.celeria.musicplayer.music;
 
 public interface Player
 {
-    void play(IMusicCallback callback);
+    int BUFFER_SIZE = 128000;
+
+    void play(MusicCallback callback);
+    void pause();
+    void resume();
     void stop();
 
     long getLength();

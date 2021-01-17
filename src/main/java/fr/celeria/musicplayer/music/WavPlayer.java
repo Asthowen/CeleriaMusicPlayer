@@ -7,9 +7,10 @@ import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 
+import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
+
 public class WavPlayer implements Player
 {
-    private static final int BUFFER_SIZE = 128000;
     private final AudioFormat audioFormat;
     private File soundFile;
     private AudioInputStream audioStream = null;
@@ -31,11 +32,19 @@ public class WavPlayer implements Player
             Main.LOGGER.printStackTrace("Error when get audio input : ", e);
         }
 
-        this.audioFormat = this.audioStream.getFormat();
+        this.audioFormat = this.getOutFormat(this.audioStream.getFormat());
     }
 
+    private AudioFormat getOutFormat(AudioFormat inFormat)
+    {
+        final int ch = inFormat.getChannels();
+        final float rate = inFormat.getSampleRate();
+        return new AudioFormat(PCM_SIGNED, rate, 16, ch, ch * 2, rate, false);
+    }
+
+
     @Override
-    public void play(IMusicCallback callback)
+    public void play(MusicCallback callback)
     {
         final DataLine.Info info = new DataLine.Info(SourceDataLine.class, this.audioFormat);
 
@@ -73,9 +82,21 @@ public class WavPlayer implements Player
             this.audioStream.close();
         } catch (IOException e)
         {
-            e.printStackTrace();
+            Main.LOGGER.printStackTrace(e);
         }
         Platform.runLater(() -> callback.update(this));
+    }
+
+    @Override
+    public void pause()
+    {
+        // TODO Pause function
+    }
+
+    @Override
+    public void resume()
+    {
+        // TODO Resume function
     }
 
     @Override
@@ -90,7 +111,7 @@ public class WavPlayer implements Player
                 this.audioStream.close();
             } catch (IOException e)
             {
-                e.printStackTrace();
+                Main.LOGGER.printStackTrace(e);
             }
         }
     }

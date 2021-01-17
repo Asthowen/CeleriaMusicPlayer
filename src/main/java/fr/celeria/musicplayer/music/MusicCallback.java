@@ -1,7 +1,7 @@
 package fr.celeria.musicplayer.music;
 
 @FunctionalInterface
-public interface IMusicCallback
+public interface MusicCallback
 {
     void update(Player player);
 }
