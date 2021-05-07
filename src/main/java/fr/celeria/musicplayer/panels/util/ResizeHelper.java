@@ -19,7 +19,7 @@ public class ResizeHelper {
     }
 
     public static void addResizeListener(Stage stage) {
-        addResizeListener(stage, 1.0D, 1.0D, 1.7976931348623157E308D, 1.7976931348623157E308D);
+        addResizeListener(stage, 1000.0D, 700.0D, 1.7976931348623157E308D, 1.7976931348623157E308D);
     }
 
     public static void addResizeListener(Stage stage, double minWidth, double minHeight, double maxWidth, double maxHeight) {
@@ -35,11 +35,9 @@ public class ResizeHelper {
         resizeListener.setMaxHeight(maxHeight);
         final ObservableList<Node> children = stage.getScene().getRoot().getChildrenUnmodifiable();
 
-        for (Node child : children)
-        {
+        for (Node child : children){
             if (child instanceof ScrollBar) isScrollbar = true;
-            else
-            {
+            else{
                 isScrollbar = false;
                 addListenerDeeply(child, resizeListener);
             }
@@ -56,11 +54,9 @@ public class ResizeHelper {
             final Parent parent = (Parent)node;
             final ObservableList<Node> children = parent.getChildrenUnmodifiable();
 
-            for (Node child : children)
-            {
+            for (Node child : children){
                 if (child instanceof ScrollBar) isScrollbar = true;
-                else
-                {
+                else{
                     isScrollbar = false;
                     addListenerDeeply(child, listener);
                 }

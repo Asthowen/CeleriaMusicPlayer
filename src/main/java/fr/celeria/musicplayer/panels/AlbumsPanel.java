@@ -1,24 +1,40 @@
 package fr.celeria.musicplayer.panels;
 
-import fr.celeria.musicplayer.music.WavPlayer;
-import fr.celeria.musicplayer.panels.includes.BottomPanel;
 import fr.celeria.musicplayer.panels.util.Panel;
 import fr.celeria.musicplayer.panels.util.PanelManager;
-import fr.celeria.musicplayer.utils.FileMetadata;
-import javafx.application.Platform;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.stage.FileChooser;
+import javafx.geometry.VPos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.text.Font;
 
-import java.io.File;
 
 public class AlbumsPanel extends Panel {
+
+    private GridPane albumPanel;
+
     @Override
-    public void init(PanelManager panelManager)
-    {
+    public void init(PanelManager panelManager){
         super.init(panelManager);
 
+        this.albumPanel = this.layout;
+
+        GridPane.setValignment(albumPanel, VPos.TOP);
+        GridPane.setHgrow(albumPanel, Priority.ALWAYS);
+        GridPane.setVgrow(albumPanel, Priority.ALWAYS);
+
+        albumPanel.setTranslateY(10.0d);
+
+
+        Label titleLabel = new Label("Albums à votre disposition");
+        titleLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+        titleLabel.setFont(new Font(35));
+        titleLabel.setTranslateX(15.0d);
+        titleLabel.setTranslateY(150.0d);
+
+
         // Test for playing a wav file.
+        /*
         final FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("WAV", "*.wav"));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("MP3", "*.mp3"));
@@ -50,5 +66,7 @@ public class AlbumsPanel extends Panel {
                     bottomPanel.getProgressSoundBar().setProgress(0);
             });
         }, selected.getName() + " - Player").start();*/
+        this.layout.getChildren().addAll(titleLabel);
+
     }
 }

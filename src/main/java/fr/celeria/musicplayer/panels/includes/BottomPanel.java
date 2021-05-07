@@ -16,13 +16,12 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
-public class BottomPanel extends Panel
-{
+public class BottomPanel extends Panel{
     private GridPane bottomPanel;
     private Rectangle coverImage = new Rectangle();
     private Label trackName = new Label();
     private Label trackAuthor = new Label();
-    private MaterialDesignIconView play = new MaterialDesignIconView(MaterialDesignIcon.PAUSE);
+    private MaterialDesignIconView play = new MaterialDesignIconView(MaterialDesignIcon.PAUSE_CIRCLE);
     private MaterialDesignIconView skipNext = new MaterialDesignIconView(MaterialDesignIcon.SKIP_NEXT);
     private MaterialDesignIconView skipPrevious = new MaterialDesignIconView(MaterialDesignIcon.SKIP_PREVIOUS);
     private MaterialDesignIconView sound = new MaterialDesignIconView(MaterialDesignIcon.VOLUME_HIGH);
@@ -37,6 +36,7 @@ public class BottomPanel extends Panel
         GridPane.setValignment(bottomPanel, VPos.BOTTOM);
         GridPane.setHgrow(bottomPanel, Priority.ALWAYS);
         GridPane.setVgrow(bottomPanel, Priority.ALWAYS);
+
 
         this.bottomPanel.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #053F5A, #053F5A, #006050);");
         this.bottomPanel.setMinHeight(80.0d);
@@ -71,8 +71,6 @@ public class BottomPanel extends Panel
         coverImage.setArcWidth(30.0d);
         coverImage.setArcHeight(30.0d);
         coverImage.setFill(new ImagePattern(new Image(getClass().getResource("/image/tempAlbumCover.jpg").toExternalForm())));
-        coverImage.setOnMouseEntered(e -> coverImage.setOpacity(0.8f));
-        coverImage.setOnMouseExited(e -> coverImage.setOpacity(1.0f));
         coverImage.setTranslateX(25.0d);
         GridPane.setHalignment(coverImage, HPos.LEFT);
         GridPane.setValignment(coverImage, VPos.CENTER);

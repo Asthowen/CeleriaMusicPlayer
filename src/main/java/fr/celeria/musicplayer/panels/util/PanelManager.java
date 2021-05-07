@@ -3,9 +3,11 @@ package fr.celeria.musicplayer.panels.util;
 import fr.celeria.musicplayer.panels.includes.BottomPanel;
 import fr.celeria.musicplayer.panels.includes.LeftPanel;
 import fr.celeria.musicplayer.panels.includes.TopPanel;
+import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
@@ -45,26 +47,30 @@ public class PanelManager {
 
         this.layout.setStyle("-fx-background-image: url('" + this.getClass().getResource("/image/main.png") + "'); -fx-backgound-repeat: skretch; -fx-backgound-position: center center; -fx-background-size: cover;");
 
-        RowConstraints leftPanelConstraints = new RowConstraints();
-        leftPanelConstraints.setValignment(VPos.TOP);
-        this.layout.getRowConstraints().addAll(leftPanelConstraints, new RowConstraints());
+        ColumnConstraints leftPanelConstraints = new ColumnConstraints();
+        leftPanelConstraints.setHalignment(HPos.LEFT);
+        leftPanelConstraints.setMinWidth(300.0d);
+        leftPanelConstraints.setMaxWidth(300.0d);
+        this.layout.getColumnConstraints().addAll(leftPanelConstraints, new ColumnConstraints());
         this.layout.add(this.leftPanel.getLayout(), 0, 0);
         this.leftPanel.init(this);
 
         RowConstraints topPanelConstraints = new RowConstraints();
         topPanelConstraints.setValignment(VPos.TOP);
-        topPanelConstraints.setMinHeight(25);
-        topPanelConstraints.setMaxHeight(25);
+        topPanelConstraints.setMinHeight(40.0d);
+        topPanelConstraints.setMaxHeight(40.0d);
         this.layout.getRowConstraints().addAll(topPanelConstraints, new RowConstraints());
-        this.layout.add(this.topPanel.getLayout(), 0, 0);
+        this.layout.add(this.topPanel.getLayout(), 1, 0);
         this.topPanel.init(this);
 
-        this.layout.add(this.centerPanel, 0, 1);
-        GridPane.setVgrow(this.centerPanel, Priority.ALWAYS);
+        this.layout.add(this.centerPanel,1,1);
         GridPane.setHgrow(this.centerPanel, Priority.ALWAYS);
+        GridPane.setVgrow(this.centerPanel, Priority.ALWAYS);
 
         RowConstraints bottomPanelConstraints = new RowConstraints();
         bottomPanelConstraints.setValignment(VPos.BOTTOM);
+        bottomPanelConstraints.setMinHeight(80.0d);
+        bottomPanelConstraints.setMaxHeight(80.0d);
         this.layout.getRowConstraints().addAll(bottomPanelConstraints, new RowConstraints());
         this.layout.add(this.bottomPanel.getLayout(), 0, 2);
         this.bottomPanel.init(this);
@@ -83,8 +89,7 @@ public class PanelManager {
         panel.onShow();
     }
 
-    public BottomPanel getBottomPanel()
-    {
+    public BottomPanel getBottomPanel(){
         return this.bottomPanel;
     }
 }
