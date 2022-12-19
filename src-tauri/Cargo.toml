@@ -1,0 +1,58 @@
+[package]
+name = "celeria"
+version = "0.1.0"
+description = "Celeria is a software that read, manage and download musics."
+authors = ["Asthowen<contact@asthowen.fr>"]
+license = "Mozilla Public License 2.0"
+repository = "https://github.com/Asthowen/CeleriaMusicPlayer"
+default-run = "celeria"
+edition = "2021"
+rust-version = "1.59"
+
+[profile.release]
+codegen-units = 1
+opt-level = "s"
+panic = "abort"
+strip = true
+lto = true
+
+[profile.dev]
+incremental = true
+
+[profile.dev.package.kira]
+opt-level = 3
+[profile.dev.package.cpal]
+opt-level = 3
+[profile.dev.package.symphonia]
+opt-level = 3
+[profile.dev.package.symphonia-bundle-mp3]
+opt-level = 3
+[profile.dev.package.symphonia-format-ogg]
+opt-level = 3
+[profile.dev.package.symphonia-codec-vorbis]
+opt-level = 3
+[profile.dev.package.symphonia-bundle-flac]
+opt-level = 3
+[profile.dev.package.symphonia-format-wav]
+opt-level = 3
+[profile.dev.package.symphonia-codec-pcm]
+opt-level = 3
+
+[build-dependencies]
+tauri-build = { version = "1.2.1", features = [] }
+
+[dependencies]
+tauri = { version = "1.2.2", features = ["window-all"] }
+serde = { version = "1.0", features = ["derive"] }
+tokio = {version = "1.23.0", features= ["full"] }
+base64 = "0.21.0-beta.1"
+env_logger = "0.9.3"
+audiotags = "0.4.1"
+serde_json = "1.0"
+chrono = "0.4.22"
+kira = "0.7.1"
+log = "0.4"
+
+[features]
+default = [ "custom-protocol" ]
+custom-protocol = [ "tauri/custom-protocol" ]

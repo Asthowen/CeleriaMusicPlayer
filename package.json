@@ -1,0 +1,45 @@
+{
+  "name": "celeria",
+  "description": "Celeria is a software that read, manage and download musics.",
+  "private": true,
+  "version": "0.1.0",
+  "license": "Mozilla Public License 2.0",
+  "type": "commonjs",
+  "authors": [
+    {
+      "name": "Asthowen",
+      "email": "contact@asthowen.fr",
+      "url": "https://asthowen.fr"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Asthowen/CeleriaMusicPlayer.git"
+  },
+  "scripts": {
+    "lint": "eslint src/ --ext .ts,.tsx  --fix",
+    "tailwindcss": "pnpm exec tailwindcss build -i src/css/index.css -o src/css/tailwind.css --watch",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.2.0",
+    "@tauri-apps/cli": "^1.2.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.46.1",
+    "@typescript-eslint/parser": "^5.46.1",
+    "autoprefixer": "^10.4.13",
+    "eslint": "^8.30.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "postcss": "^8.4.20",
+    "prettier": "^2.8.1",
+    "tailwindcss": "^3.2.4",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.1"
+  }
+}
