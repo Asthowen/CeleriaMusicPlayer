@@ -9,6 +9,9 @@ module.exports = {
           2: "#f1f1f1",
           3: "#cccaca",
         },
+        dark: {
+          celeria: "#131313",
+        },
       },
       minWidth: {
         64: "16rem",

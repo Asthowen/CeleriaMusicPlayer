@@ -12,6 +12,12 @@
     border-bottom: 6px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.08);
 }
+.break-properly {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-all;
+}
 
 #left-panel {
     background: url("/pictures/left-panel-background.png") no-repeat center;
@@ -19,11 +25,21 @@
     background-size: cover;
 }
 #main-panel {
-    background: url("/pictures/background.png") center center fixed;
     -webkit-background-size: cover;
     background-size: cover;
+    background: url("/pictures/background.png") no-repeat fixed center center;
 }
 #bottom-panel {
     background: rgb(5,64,89);
     background: linear-gradient(90deg, #054059 0%, rgba(4,73,87,1) 35%, rgba(0,95,80,1) 100%);
+}
+*::-webkit-scrollbar-corner  {
+    display: none;
+}
+*::-webkit-scrollbar {
+    width: 6px;
+}
+*::-webkit-scrollbar-thumb {
+    background: #053e5a;
+    border-radius: 2px;
 }

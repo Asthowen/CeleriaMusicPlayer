@@ -15,6 +15,10 @@
       "window": {
         "all": true,
         "create": false
+      },
+      "protocol": {
+        "asset": true,
+        "assetScope": ["**"]
       }
     },
     "bundle": {
