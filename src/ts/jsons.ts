@@ -25,6 +25,7 @@ export interface ListAlbums {
 }
 
 export interface MusicInfos {
+  paused: boolean;
   duration: Duration;
   started_at: Duration;
   progress: Duration;

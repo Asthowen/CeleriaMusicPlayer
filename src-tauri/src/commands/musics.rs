@@ -16,15 +16,23 @@ pub async fn play_sound(
 }
 
 #[tauri::command]
-pub async fn pause(music_manager: State<'_, MusicManagerStruct>) -> Result<(), ()> {
-    music_manager.0.lock().await.pause().await;
-    Ok(())
+pub async fn pause(music_manager: State<'_, MusicManagerStruct>) -> Result<bool, ()> {
+    Ok(music_manager.0.lock().await.pause().await)
 }
 
 #[tauri::command]
-pub async fn resume(music_manager: State<'_, MusicManagerStruct>) -> Result<(), ()> {
-    music_manager.0.lock().await.resume().await;
-    Ok(())
+pub async fn resume(music_manager: State<'_, MusicManagerStruct>) -> Result<bool, ()> {
+    Ok(music_manager.0.lock().await.resume().await)
+}
+
+#[tauri::command]
+pub async fn next(music_manager: State<'_, MusicManagerStruct>) -> Result<bool, ()> {
+    Ok(music_manager.0.lock().await.next().await)
+}
+
+#[tauri::command]
+pub async fn previous(music_manager: State<'_, MusicManagerStruct>) -> Result<bool, ()> {
+    Ok(music_manager.0.lock().await.previous().await)
 }
 
 #[tauri::command]

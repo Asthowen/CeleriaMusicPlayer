@@ -102,6 +102,8 @@ async fn main() {
             commands::musics::sound_infos,
             commands::musics::pause,
             commands::musics::resume,
+            commands::musics::previous,
+            commands::musics::next,
             commands::library::list_albums::list_albums,
             commands::library::album_infos::album_infos
         ])

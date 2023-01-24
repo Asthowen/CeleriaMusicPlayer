@@ -5,6 +5,7 @@ use crate::database::schemas::tracks::dsl as tracks_dsl;
 use crate::database::sqlite::{get_pool, SqlitePool, SqlitePooled};
 use crate::util::config_manager::ConfigManagerStruct;
 use audiotags::Tag;
+use base64::{engine::general_purpose, Engine as _};
 use diesel::prelude::*;
 use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
@@ -50,7 +51,7 @@ pub fn get_file_infos<P: AsRef<Path>>(file_path: &P) -> Option<MusicFileInfos> {
                 None
             },
             cover: if let Some(cover) = tag.album_cover() {
-                Option::from(base64::encode(cover.data))
+                Option::from(general_purpose::STANDARD.encode(cover.data))
             } else {
                 None
             },
@@ -140,7 +141,7 @@ impl LibraryManager {
                         let mut has_cover: i16 = 0;
 
                         if let Some(cover) = file_infos.cover {
-                            let decode_cover_result = base64::decode(cover);
+                            let decode_cover_result = general_purpose::STANDARD.decode(cover);
                             if let Ok(decode_cover) = decode_cover_result {
                                 let albums_covers_dir: PathBuf = dirs::data_dir()
                                     .unwrap()

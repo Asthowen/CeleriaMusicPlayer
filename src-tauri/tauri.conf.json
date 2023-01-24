@@ -17,13 +17,23 @@
         "create": false
       },
       "protocol": {
+        "all": false,
         "asset": true,
-        "assetScope": ["**"]
+        "assetScope": [
+          "$APPLOCALDATA/cover/albums/**"
+        ]
+      },
+      "fs": {
+        "all": false,
+        "readFile": true,
+        "scope": [
+          "$APPLOCALDATA/cover/albums/**"
+        ]
       }
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
+      "category": "Music",
       "copyright": "",
       "deb": {
         "depends": []
@@ -36,7 +46,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "fr.asthowen.celeria",
+      "identifier": "celeria",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -46,7 +56,7 @@
         "signingIdentity": null
       },
       "resources": [],
-      "shortDescription": "",
+      "shortDescription": "Celeria is a software that read, manage and download musics.",
       "targets": "all",
       "windows": {
         "certificateThumbprint": null,

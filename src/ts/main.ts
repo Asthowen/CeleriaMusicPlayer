@@ -22,10 +22,13 @@ const musicSubtitle = document.getElementById(
   "music-subtitle"
 )! as HTMLParagraphElement;
 const playButton: HTMLElement | null = document.getElementById("play-button");
-const playButtonResume: HTMLElement | null =
-  document.getElementById("play-button-resume");
-const playButtonPause: HTMLElement | null =
-  document.getElementById("play-button-pause");
+const nextButton: HTMLElement | null = document.getElementById("next-button");
+const previousButton: HTMLElement | null =
+  document.getElementById("previous-button");
+const playButtonResume: HTMLElement =
+  document.getElementById("play-button-resume")!;
+const playButtonPause: HTMLElement =
+  document.getElementById("play-button-pause")!;
 const panelAlbumList: HTMLElement =
   document.getElementById("panel-album-list")!;
 const panelTracksListContainer: HTMLElement = document.getElementById(
@@ -46,7 +49,6 @@ const panelTracksListAlbumArtist: HTMLElement = document.getElementById(
 const panelTracksListCloseButton: HTMLElement | null = document.getElementById(
   "panel-tracks-list-close-button"
 );
-let musicInfosInterval: number | null = null;
 let currentAlbumSelectedUUID: string | null = null;
 
 titleBarClose?.addEventListener("click", () => appWindow.close());
@@ -92,39 +94,53 @@ const soundInterval = async () => {
     currentInfos !== undefined &&
     musicProgress !== null
   ) {
+    if (currentInfos.paused) {
+      playButtonPause.classList.add("hidden");
+      playButtonResume.classList.remove("hidden");
+    } else {
+      playButtonResume.classList.add("hidden");
+      playButtonPause.classList.remove("hidden");
+    }
     musicProgress.style.width = `${
       (currentInfos.progress.secs / currentInfos.duration.secs) * 100
     }%`;
     initSoundInfos(currentInfos);
+  } else {
+    if (musicProgress !== null) {
+      musicProgress.style.width = "0%";
+    }
+    musicCover.classList.add("hidden");
+    noMusicCover?.classList.remove("hidden");
+    musicTitle.textContent = "";
+    musicSubtitle.textContent = "";
   }
 };
 
+nextButton?.addEventListener("click", async () => {
+  await invoke("next", {});
+});
+
+previousButton?.addEventListener("click", async () => {
+  await invoke("previous", {});
+});
+
 playButton?.addEventListener("click", async () => {
-  if (
-    playButtonResume !== null &&
-    playButtonResume.classList.contains("hidden")
-  ) {
-    await invoke("pause", {});
-    if (playButtonPause !== null) {
+  if (playButtonResume.classList.contains("hidden")) {
+    const result: boolean = await invoke("pause", {});
+    if (result) {
       playButtonPause.classList.add("hidden");
-    }
-    playButtonResume.classList.remove("hidden");
-    if (musicInfosInterval !== null) {
-      clearInterval(musicInfosInterval);
+      playButtonResume.classList.remove("hidden");
     }
   } else {
-    await invoke("resume", {});
-    if (playButtonResume !== null) {
+    const result: boolean = await invoke("resume", {});
+    if (result) {
       playButtonResume.classList.add("hidden");
-    }
-    if (playButtonPause !== null) {
       playButtonPause.classList.remove("hidden");
     }
-    musicInfosInterval = setInterval(() => soundInterval(), 1000);
   }
 });
 
-musicInfosInterval = setInterval(() => soundInterval(), 1000);
+setInterval(() => soundInterval(), 1000);
 
 panelManager.registerPanel("panel-album", async () => {
   const fetchAlbums: ListAlbums = await invoke("list_albums", {});
@@ -142,7 +158,7 @@ panelManager.registerPanel("panel-album", async () => {
           )}">`;
     const addHiddenForDiv = album.cover === 1 ? " hidden" : "";
 
-    htmlToAdd += `<div class="bg-dark-celeria w-[15rem] hover:w-[30rem] duration-500 ease-in-out h-80 p-8 rounded-sm group cursor-pointer m-4 album-element" uuid="${album.uuid}">
+    htmlToAdd += `<div class="bg-dark-celeria w-[15rem] hover:w-[32rem] duration-500 ease-in-out h-80 p-8 rounded-sm group cursor-pointer m-4 album-element" uuid="${album.uuid}">
         ${addCover}
         <div class="w-44 h-44 rounded-lg bg-white-3${addHiddenForDiv}"></div>
         <div class="w-[10rem] group-hover:w-[25rem] duration-500 ease-in-out h-[7rem]">
@@ -185,8 +201,10 @@ panelManager.registerPanel("panel-tracks-list", async () => {
     htmlToAdd += `<div class="flex flex-row justify-between hover:bg-dark-celeria cursor-pointer p-3 rounded-lg track-element" uuid="${
       track.uuid
     }">
-        <div class="flex items-center flex-row space-x-6">
-            <span class="text-mukta text-xl text-white-1">${i + 1}</span>
+        <div class="flex items-center flex-row space-x-4">
+            <span class="text-mukta text-md text-white-1 w-6 flex justify-end">${
+              i + 1
+            }</span>
             <p class="text-mukta text-lg text-white-1">${track.title}</p>
         </div>
         <div class="flex items-center flex-row space-x-6 pr-2">

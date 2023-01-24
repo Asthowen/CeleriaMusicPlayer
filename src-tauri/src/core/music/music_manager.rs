@@ -23,6 +23,7 @@ pub struct MusicElement {
 
 #[derive(Clone, Debug, Serialize)]
 pub struct MusicElementComplete {
+    paused: bool,
     duration: Duration,
     started_at: Duration,
     progress: Duration,
@@ -38,7 +39,7 @@ pub struct MusicManager {
     musics_queue: Arc<RwLock<Vec<(Track, Option<Album>)>>>,
     music_previous_queue: Arc<RwLock<Vec<(Track, Option<Album>)>>>,
     current_sound: Arc<Mutex<Option<StaticSoundHandle>>>,
-    pause_data: Arc<Mutex<Duration>>,
+    pause_data: Arc<Mutex<Option<Duration>>>,
 }
 
 impl MusicManager {
@@ -68,6 +69,7 @@ impl MusicManager {
             loop {
                 let music_element_clone = musics_elements.clone();
                 let music_element = music_element_clone.read().await;
+                let current_sound_clone = current_sound.clone();
 
                 if music_element.len() > 0
                     && manager.lock().await.state() == MainPlaybackState::Playing
@@ -79,7 +81,11 @@ impl MusicManager {
                         drop(music_element);
 
                         let mut music_element_1 = music_element_clone.write().await;
-                        music_previous_queue.clone().write().await.push(music_element_1[0].clone().file_infos);
+                        music_previous_queue
+                            .clone()
+                            .write()
+                            .await
+                            .push(music_element_1[0].clone().file_infos);
 
                         music_element_1.remove(0);
                         drop(music_element_1);
@@ -96,11 +102,18 @@ impl MusicManager {
                                     started_at: unix_time(),
                                     file_infos: music_queue[0].clone(),
                                 });
+                                if let Some(current_sound) =
+                                    current_sound_clone.lock().await.as_mut()
+                                {
+                                    current_sound.stop(Tween::default()).ok();
+                                }
                                 let sound: StaticSoundHandle =
                                     manager.lock().await.play(sound_data).unwrap();
-                                *current_sound.lock().await = Option::from(sound);
+                                *current_sound_clone.lock().await = Option::from(sound);
                             }
                             music_queue.remove(0);
+                        } else {
+                            *current_sound_clone.lock().await = None;
                         }
                         drop(music_queue);
                     }
@@ -130,7 +143,8 @@ impl MusicManager {
                     file_infos: track_infos,
                 };
                 self.musics_elements.write().await.push(music_element);
-                self.manager.lock().await.play(sound_data).unwrap();
+                let sound: StaticSoundHandle = self.manager.lock().await.play(sound_data).unwrap();
+                *self.current_sound.lock().await = Option::from(sound);
             } else {
                 return Err(());
             }
@@ -140,22 +154,73 @@ impl MusicManager {
         Ok(())
     }
 
-    pub async fn resume(&mut self) {
-        if self.player_state().await != MainPlaybackState::Playing {
-            self.manager.lock().await.resume(Tween::default()).unwrap();
-            let pause_data = self.pause_data.lock().await;
+    pub async fn resume(&mut self) -> bool {
+        let player_state = self.player_state().await;
+
+        if player_state == MainPlaybackState::Paused || player_state == MainPlaybackState::Pausing {
             let mut music_queue = self.musics_elements.write().await;
-            music_queue[0].started_at += unix_time() - *pause_data;
+            if !music_queue.is_empty() {
+                self.manager.lock().await.resume(Tween::default()).unwrap();
+                let mut pause_data = self.pause_data.lock().await;
+                music_queue[0].started_at +=
+                    unix_time() - pause_data.unwrap_or(Duration::from_secs(0));
+                *pause_data = None;
+                drop(music_queue);
+                drop(pause_data);
+                return true;
+            }
             drop(music_queue);
-            drop(pause_data);
         }
+        false
     }
 
-    pub async fn pause(&mut self) {
+    pub async fn pause(&mut self) -> bool {
         if self.player_state().await == MainPlaybackState::Playing {
             self.manager.lock().await.pause(Tween::default()).unwrap();
-            *self.pause_data.lock().await = unix_time();
+            *self.pause_data.lock().await = Option::from(unix_time());
+            return true;
         }
+        false
+    }
+
+    pub async fn next(&mut self) -> bool {
+        if !self.musics_queue.read().await.is_empty() {
+            let mut musics_elements = self.musics_elements.write().await;
+            musics_elements[0].started_at =
+                unix_time() - Duration::from_secs(musics_elements[0].duration.as_secs() + 5000);
+            drop(musics_elements);
+            return true;
+        }
+        false
+    }
+
+    pub async fn previous(&mut self) -> bool {
+        let mut music_previous_queue = self.music_previous_queue.write().await;
+        if !music_previous_queue.is_empty() {
+            if let Some(current_sound) = self.current_sound.lock().await.as_mut() {
+                current_sound.stop(Tween::default()).ok();
+            }
+
+            let mut musics_queue = self.musics_queue.write().await;
+            let last_element_index: usize = music_previous_queue.len() - 1;
+            let mut musics_queue_clone = musics_queue.clone();
+            musics_queue.clear();
+            musics_queue.push(music_previous_queue[last_element_index].clone());
+            musics_queue.append(&mut musics_queue_clone);
+            music_previous_queue.remove(last_element_index);
+
+            let mut musics_elements = self.musics_elements.write().await;
+            musics_elements[0].started_at =
+                unix_time() - Duration::from_secs(musics_elements[0].duration.as_secs() + 5000);
+
+            drop(musics_elements);
+            drop(music_previous_queue);
+            drop(musics_queue);
+
+            *self.current_sound.lock().await = None;
+            return true;
+        }
+        false
     }
 
     pub async fn get_current_track_basic(&mut self) -> Option<MusicElement> {
@@ -165,16 +230,21 @@ impl MusicManager {
     pub async fn get_current_track_complete(&self) -> Option<MusicElementComplete> {
         if let Some(music_element) = self.musics_elements.read().await.get(0).cloned() {
             let time: Duration = unix_time();
+            let pause_data = *self.pause_data.lock().await;
             let music_element_complete: MusicElementComplete = MusicElementComplete {
+                paused: pause_data.is_some(),
                 duration: music_element.duration,
                 started_at: music_element.started_at,
-                progress: Duration::from_millis(
-                    (time.as_millis() - music_element.started_at.as_millis()) as u64,
-                ),
-                remain_time: Duration::from_millis(
-                    ((music_element.started_at.as_millis() + music_element.duration.as_millis())
-                        - time.as_millis()) as u64,
-                ),
+                progress: if let Some(pause_data) = pause_data {
+                    pause_data - music_element.started_at
+                } else {
+                    time - music_element.started_at
+                },
+                remain_time: if let Some(pause_data) = pause_data {
+                    (music_element.started_at + music_element.duration) - pause_data
+                } else {
+                    (music_element.started_at + music_element.duration) - time
+                },
                 file_infos: music_element.file_infos,
                 cover_path: dirs::data_dir()
                     .unwrap()

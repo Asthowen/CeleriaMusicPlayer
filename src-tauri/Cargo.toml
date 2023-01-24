@@ -43,19 +43,19 @@ tauri-build = { version = "1.2.1", features = [] }
 
 [dependencies]
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev", version = "0.1.0" }
-diesel = { version = "2.0.2", features = ["libsqlite3-sys", "serde_json", "r2d2", "sqlite"] }
+tokio = { version = "1.23.0", default-features = false, features = ["rt-multi-thread", "time", "macros"] }
+diesel = { version = "2.0.3", features = ["libsqlite3-sys", "serde_json", "r2d2", "sqlite"] }
 audiotags = { version = "0.5.0", git = "https://github.com/TianyiShi2001/audiotags.git" }
 uuid = { version = "1.2.1", default-features = false, features = ["v4", "fast-rng"] }
-tauri = { version = "1.2.2", features = ["protocol-asset", "window-all"] }
+tauri = { version = "1.2.4", features = ["fs-read-file", "protocol-asset", "window-all"] }
 serde = { version = "1.0", features = ["derive"] }
-tokio = { version = "1.23.0", features= ["full"] }
 mpeg-audio-header = "0.0.5"
 diesel_migrations = "2.0.0"
-base64 = "0.21.0-beta.1"
-env_logger = "0.9.3"
+env_logger = "0.10.0"
 serde_json = "1.0"
 chrono = "0.4.22"
 walkdir = "2.3.2"
+base64 = "0.21.0"
 r2d2 = "0.8.10"
 dirs = "4.0.0"
 kira = "0.7.1"
