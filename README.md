@@ -9,7 +9,7 @@
     <a href="https://github.com/Asthowen/CeleriaMusicPlayer">
         <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" alt="Use git">
     </a>
-    <a href="https://discord.com">
+    <a href="https://discord.com/invite/93s7WzBbq7">
         <img src="https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white" alt="Discord bot">
     </a>
 </div>

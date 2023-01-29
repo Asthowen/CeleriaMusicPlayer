@@ -9,8 +9,11 @@
     background: rgba(255, 255, 255, 0.08);
 }
 .left-menu-selection-selected {
-    border-bottom: 6px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -6px 0 rgba(255, 255, 255, 0.08) inset;
     background: rgba(255, 255, 255, 0.08);
+}
+.left-menu-hover:hover {
+    background: rgba(255, 255, 255, 0.10);
 }
 .break-properly {
     white-space: nowrap;
@@ -42,4 +45,47 @@
 *::-webkit-scrollbar-thumb {
     background: #053e5a;
     border-radius: 2px;
+}
+
+#sound-progressbar {
+    overflow: hidden;
+    -webkit-appearance: none;
+    background-color: #131313;
+}
+#sound-progressbar::-webkit-slider-runnable-track {
+    height: 0.75rem;
+    -webkit-appearance: none;
+    color: #13bba4;
+    border-radius: 50%;
+}
+
+#sound-progressbar::-webkit-slider-thumb {
+    width: 0.75rem;
+    height: 0.75rem;
+    -webkit-appearance: none;
+    background: #097b83;
+    border-radius: 50%;
+    box-shadow: -80px 0 0 80px #097b83;
+}
+
+#music-progress {
+    overflow: hidden;
+    -webkit-appearance: none;
+    background-color: transparent;
+}
+
+#music-progress::-webkit-slider-runnable-track {
+    height: 0.25rem;
+    -webkit-appearance: none;
+    color: #13bba4;
+    border-radius: 50%;
+}
+
+#music-progress::-webkit-slider-thumb {
+    width: 0.25rem;
+    height: 0.25rem;
+    -webkit-appearance: none;
+    background: #097b83;
+    border-radius: 50%;
+    box-shadow: -200vw 0 0 200vw #097b83;
 }

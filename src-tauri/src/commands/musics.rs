@@ -36,6 +36,22 @@ pub async fn previous(music_manager: State<'_, MusicManagerStruct>) -> Result<bo
 }
 
 #[tauri::command]
+pub async fn set_volume(
+    volume: f64,
+    music_manager: State<'_, MusicManagerStruct>,
+) -> Result<bool, ()> {
+    Ok(music_manager.0.lock().await.set_volume(volume).await)
+}
+
+#[tauri::command]
+pub async fn set_progress(
+    time: f64,
+    music_manager: State<'_, MusicManagerStruct>,
+) -> Result<bool, ()> {
+    Ok(music_manager.0.lock().await.set_progress(time).await)
+}
+
+#[tauri::command]
 pub async fn sound_infos(
     music_manager: State<'_, MusicManagerStruct>,
 ) -> Result<Option<MusicElementComplete>, ()> {

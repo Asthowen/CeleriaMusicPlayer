@@ -3,6 +3,10 @@ export interface Duration {
   secs: number;
 }
 
+export interface Infos {
+  covers_path: string;
+}
+
 export interface Album {
   uuid: string;
   name: string;
@@ -19,11 +23,6 @@ export interface Track {
   file_path: string;
 }
 
-export interface ListAlbums {
-  list: [Album];
-  pictures_path: string;
-}
-
 export interface MusicInfos {
   paused: boolean;
   duration: Duration;
@@ -31,5 +30,4 @@ export interface MusicInfos {
   progress: Duration;
   remain_time: Duration;
   file_infos: [Track, Album | null];
-  cover_path: string;
 }

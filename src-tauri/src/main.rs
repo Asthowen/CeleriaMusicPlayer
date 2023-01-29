@@ -13,7 +13,9 @@ use std::path::PathBuf;
 use std::process::exit;
 use std::sync::Arc;
 use std::time::Instant;
-use tauri::{Manager, Menu};
+#[cfg(debug_assertions)]
+use tauri::Manager;
+use tauri::Menu;
 use tokio::sync::Mutex;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
@@ -98,12 +100,15 @@ async fn main() {
         .manage(config_manager_struct)
         .manage(library_manager_struct)
         .invoke_handler(tauri::generate_handler![
+            commands::infos::infos,
             commands::musics::play_sound,
             commands::musics::sound_infos,
             commands::musics::pause,
             commands::musics::resume,
             commands::musics::previous,
             commands::musics::next,
+            commands::musics::set_volume,
+            commands::musics::set_progress,
             commands::library::list_albums::list_albums,
             commands::library::album_infos::album_infos
         ])

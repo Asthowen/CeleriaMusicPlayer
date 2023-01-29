@@ -1,8 +1,11 @@
+// eslint-disable-next-line import/no-unresolved
 import { appWindow } from "@tauri-apps/api/window";
+// eslint-disable-next-line import/no-unresolved
 import { invoke, convertFileSrc } from "@tauri-apps/api/tauri";
 import PanelManager from "./panel_manager";
 import formatDuration from "./utils";
-import { Album, ListAlbums, MusicInfos, Track } from "./jsons";
+import { Album, Infos, MusicInfos, Track } from "./jsons";
+import MusicProgress from "./custom_elements/music_progress";
 
 const panelManager = new PanelManager();
 const titleBarClose: HTMLElement | null =
@@ -11,8 +14,9 @@ const titleBarMaximize: HTMLElement | null =
   document.getElementById("titlebar-maximize");
 const titleBarMinimize: HTMLElement | null =
   document.getElementById("titlebar-minimize");
-const musicProgress: HTMLElement | null =
-  document.getElementById("music-progress");
+const musicProgress: MusicProgress = document.getElementById(
+  "music-progress"
+)! as MusicProgress;
 const musicCover = document.getElementById("music-cover")! as HTMLImageElement;
 const noMusicCover: HTMLElement = document.getElementById("no-music-cover")!;
 const musicTitle = document.getElementById(
@@ -21,6 +25,9 @@ const musicTitle = document.getElementById(
 const musicSubtitle = document.getElementById(
   "music-subtitle"
 )! as HTMLParagraphElement;
+const soundProgressBar: HTMLInputElement = document.getElementById(
+  "sound-progressbar"
+)! as HTMLInputElement;
 const playButton: HTMLElement | null = document.getElementById("play-button");
 const nextButton: HTMLElement | null = document.getElementById("next-button");
 const previousButton: HTMLElement | null =
@@ -49,35 +56,131 @@ const panelTracksListAlbumArtist: HTMLElement = document.getElementById(
 const panelTracksListCloseButton: HTMLElement | null = document.getElementById(
   "panel-tracks-list-close-button"
 );
+const leftMenuItemAlbums: HTMLElement = document.getElementById(
+  "left-menu-item-albums"
+)!;
+const leftMenuSeparatorAlbums: HTMLElement = document.getElementById(
+  "left-menu-separator-albums"
+)!;
+const leftMenuItemTracks: HTMLElement = document.getElementById(
+  "left-menu-item-tracks"
+)!;
+const leftMenuSeparatorTracks: HTMLElement = document.getElementById(
+  "left-menu-separator-tracks"
+)!;
+const leftMenuItemPlaylists: HTMLElement = document.getElementById(
+  "left-menu-item-playlists"
+)!;
+const leftMenuSeparatorPlaylists: HTMLElement = document.getElementById(
+  "left-menu-separator-playlists"
+)!;
+const leftMenuItemDownloader: HTMLElement = document.getElementById(
+  "left-menu-item-downloader"
+)!;
+
+let leftMenuPreviousSelectedItem: HTMLElement = leftMenuItemAlbums;
+let leftMenuPreviousSelectedSeparator: HTMLElement | null =
+  leftMenuSeparatorAlbums;
 let currentAlbumSelectedUUID: string | null = null;
+let currentPlayerSoundUUID: string | null = null;
+const infos: Infos = await invoke("infos", {});
 
 titleBarClose?.addEventListener("click", () => appWindow.close());
 titleBarMaximize?.addEventListener("click", () => appWindow.toggleMaximize());
 titleBarMinimize?.addEventListener("click", () => appWindow.minimize());
+
+const leftMenuSwitch = (
+  element: HTMLElement,
+  separator: HTMLElement | null
+) => {
+  if (leftMenuPreviousSelectedSeparator !== null) {
+    leftMenuPreviousSelectedSeparator.classList.remove("hidden");
+  }
+  if (separator !== null) {
+    separator.classList.add("hidden");
+  }
+
+  leftMenuPreviousSelectedItem.classList.remove(
+    "left-menu-selection-selected",
+    "left-menu-selection",
+    "mb-2"
+  );
+  element.classList.add(
+    "left-menu-selection-selected",
+    "left-menu-selection",
+    "mb-2"
+  );
+
+  leftMenuPreviousSelectedItem = element;
+  leftMenuPreviousSelectedSeparator = separator;
+};
+
+leftMenuItemTracks?.addEventListener("click", () => {
+  if (leftMenuPreviousSelectedItem === leftMenuItemTracks) return;
+
+  panelManager.switchToPanel("panel-in-dev").then();
+  leftMenuSwitch(leftMenuItemTracks, leftMenuSeparatorTracks);
+});
+
+leftMenuItemAlbums?.addEventListener("click", () => {
+  if (leftMenuPreviousSelectedItem === leftMenuItemAlbums) return;
+
+  panelManager.switchToPanel("panel-album").then();
+  leftMenuSwitch(leftMenuItemAlbums, leftMenuSeparatorAlbums);
+});
+leftMenuItemPlaylists?.addEventListener("click", () => {
+  if (leftMenuPreviousSelectedItem === leftMenuItemPlaylists) return;
+
+  panelManager.switchToPanel("panel-in-dev").then();
+  leftMenuSwitch(leftMenuItemPlaylists, leftMenuSeparatorPlaylists);
+});
+leftMenuItemDownloader?.addEventListener("click", () => {
+  if (leftMenuPreviousSelectedItem === leftMenuItemDownloader) return;
+
+  panelManager.switchToPanel("panel-in-dev").then();
+  leftMenuSwitch(leftMenuItemDownloader, null);
+});
+
 panelTracksListCloseButton?.addEventListener("click", async () => {
   await panelManager.switchToPanel("panel-album");
 });
+
+musicProgress?.addEventListener(
+  "music-progress-change",
+  async (event: Event) => {
+    if ((<CustomEvent>event).detail === null) return;
+
+    await invoke("set_progress", {
+      time: parseInt((<CustomEvent>event).detail, 10),
+    });
+  }
+);
+
 const initSoundInfos = (res: MusicInfos) => {
   if (res.file_infos.length === 2) {
-    if (
-      musicCover !== null &&
-      res.file_infos[1] !== null &&
-      res.file_infos[1].cover === 1
-    ) {
-      musicCover.src = convertFileSrc(
-        `${res.cover_path}/${res.file_infos[1].uuid}.png`
-      );
-      noMusicCover?.classList.add("hidden");
-      musicCover.classList.remove("hidden");
-    } else {
-      musicCover.classList.add("hidden");
-      noMusicCover?.classList.remove("hidden");
-    }
+    if (res.file_infos[0].uuid !== currentPlayerSoundUUID) {
+      if (
+        musicCover !== null &&
+        res.file_infos[1] !== null &&
+        res.file_infos[1].cover === 1
+      ) {
+        musicCover.src = convertFileSrc(
+          `${infos.covers_path}/${res.file_infos[1].uuid}.png`
+        );
+        noMusicCover?.classList.add("hidden");
+        musicCover.classList.remove("hidden");
+      } else {
+        musicCover.classList.add("hidden");
+        noMusicCover?.classList.remove("hidden");
+      }
 
-    if (musicSubtitle !== null && res.file_infos[1] !== null) {
-      musicSubtitle.textContent = `${res.file_infos[1].artist} - ${res.file_infos[1].name}`;
+      if (musicSubtitle !== null && res.file_infos[1] !== null) {
+        musicSubtitle.textContent = `${res.file_infos[1].artist} - ${res.file_infos[1].name}`;
+      }
     }
+    currentPlayerSoundUUID = res.file_infos[0].uuid;
   } else {
+    currentPlayerSoundUUID = null;
     musicCover.classList.add("hidden");
     noMusicCover?.classList.remove("hidden");
   }
@@ -89,11 +192,7 @@ const initSoundInfos = (res: MusicInfos) => {
 
 const soundInterval = async () => {
   const currentInfos: MusicInfos = await invoke("sound_infos", {});
-  if (
-    currentInfos !== null &&
-    currentInfos !== undefined &&
-    musicProgress !== null
-  ) {
+  if (currentInfos !== null && currentInfos !== undefined) {
     if (currentInfos.paused) {
       playButtonPause.classList.add("hidden");
       playButtonResume.classList.remove("hidden");
@@ -101,14 +200,14 @@ const soundInterval = async () => {
       playButtonResume.classList.add("hidden");
       playButtonPause.classList.remove("hidden");
     }
-    musicProgress.style.width = `${
-      (currentInfos.progress.secs / currentInfos.duration.secs) * 100
-    }%`;
+    musicProgress.setMaxValue(currentInfos.duration.secs);
+    musicProgress.classList.remove("hidden");
+    musicProgress.setCurrentProgress(currentInfos.progress.secs);
+
     initSoundInfos(currentInfos);
   } else {
-    if (musicProgress !== null) {
-      musicProgress.style.width = "0%";
-    }
+    musicProgress.classList.add("hidden");
+    musicProgress.setCurrentProgress(0);
     musicCover.classList.add("hidden");
     noMusicCover?.classList.remove("hidden");
     musicTitle.textContent = "";
@@ -140,21 +239,30 @@ playButton?.addEventListener("click", async () => {
   }
 });
 
-setInterval(() => soundInterval(), 1000);
+soundProgressBar?.addEventListener("input", async (event: Event) => {
+  if (event.target === null) return;
+  const target = event.target as HTMLInputElement;
+
+  if (parseInt(target.value, 10) < 101 && parseInt(target.value, 10) >= 0) {
+    await invoke("set_volume", { volume: parseInt(target.value, 10) });
+  }
+});
+
+setInterval(() => soundInterval(), 500);
 
 panelManager.registerPanel("panel-album", async () => {
-  const fetchAlbums: ListAlbums = await invoke("list_albums", {});
+  const fetchAlbums: [Album] = await invoke("list_albums", {});
 
   let htmlToAdd = "";
 
   // eslint-disable-next-line no-restricted-syntax
-  for (const album of fetchAlbums.list) {
+  for (const album of fetchAlbums) {
     const addHiddenForArtist = album.artist === null ? " hidden" : "";
     const addCover =
       album.cover === 0
         ? ""
         : `<img class="w-44 h-44 rounded-lg pt-2" src="${convertFileSrc(
-            `${fetchAlbums.pictures_path}/${album.uuid}.png`
+            `${infos.covers_path}/${album.uuid}.png`
           )}">`;
     const addHiddenForDiv = album.cover === 1 ? " hidden" : "";
 
@@ -168,9 +276,11 @@ panelManager.registerPanel("panel-album", async () => {
     </div>`;
     panelAlbumList.innerHTML = htmlToAdd;
 
+    // eslint-disable-next-line no-restricted-syntax
     for (const fetchedElement of document.querySelectorAll(".album-element")) {
       const element: HTMLElement = fetchedElement as HTMLElement;
 
+      // eslint-disable-next-line no-loop-func
       element.onclick = async () => {
         currentAlbumSelectedUUID = element.getAttribute("uuid");
         await panelManager.switchToPanel("panel-tracks-list");
@@ -180,12 +290,12 @@ panelManager.registerPanel("panel-album", async () => {
 });
 
 panelManager.registerPanel("panel-tracks-list", async () => {
-  const albumInfos: [Album, [Track], string] = await invoke("album_infos", {
+  const albumInfos: [Album, [Track]] = await invoke("album_infos", {
     uuid: currentAlbumSelectedUUID,
   });
 
   panelTracksListAlbumCover.src = convertFileSrc(
-    `${albumInfos[2]}/${albumInfos[0].uuid}.png`
+    `${infos.covers_path}/${albumInfos[0].uuid}.png`
   );
   panelTracksListAlbumName.innerText = albumInfos[0].name;
   if (albumInfos[0].artist !== null) {
@@ -231,6 +341,6 @@ panelManager.registerPanel("panel-tracks-list", async () => {
     };
   }
 });
-window.onload = async () => {
-  await panelManager.switchToPanel("panel-album");
-};
+panelManager.registerPanel("panel-in-dev", null);
+
+panelManager.switchToPanel("panel-album").then();

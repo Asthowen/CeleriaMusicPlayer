@@ -106,24 +106,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5450eca8ce5abcfd5520727e975ebab30ccca96030550406b0ca718b224ead10"
 
 [[package]]
-name = "audiotags"
-version = "0.5.0"
-source = "git+https://github.com/TianyiShi2001/audiotags.git#2fa3f6c0d2d45d471a90b4c68ffa5c5cc8fd36a8"
-dependencies = [
- "audiotags-dev-macro",
- "id3",
- "metaflac",
- "mp4ameta",
- "readme-rustdocifier",
- "thiserror",
-]
-
-[[package]]
-name = "audiotags-dev-macro"
-version = "0.2.0"
-source = "git+https://github.com/TianyiShi2001/audiotags.git#2fa3f6c0d2d45d471a90b4c68ffa5c5cc8fd36a8"
-
-[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -140,6 +122,12 @@ name = "base64"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
+
+[[package]]
+name = "base64"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ea22880d78093b0cbe17c89f64a7d457941e65759157ec6cb31a31d652b05e5"
 
 [[package]]
 name = "base64"
@@ -299,7 +287,6 @@ dependencies = [
 name = "celeria"
 version = "0.1.0"
 dependencies = [
- "audiotags",
  "base64 0.21.0",
  "chrono",
  "diesel",
@@ -307,8 +294,8 @@ dependencies = [
  "dirs",
  "env_logger",
  "kira",
+ "lofty",
  "log",
- "mpeg-audio-header",
  "r2d2",
  "serde",
  "serde_json",
@@ -1354,12 +1341,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hex"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
-
-[[package]]
 name = "html5ever"
 version = "0.25.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1428,17 +1409,6 @@ checksum = "031530fe562d8c8d71c0635013d6d155bbfe8ba0aa4b4d2d24ce8af6b71047bd"
 dependencies = [
  "byteorder",
  "png",
-]
-
-[[package]]
-name = "id3"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19d7a833474b30425eb64132d1f9b727b4e39537418bcc3288497c8d2f5c8948"
-dependencies = [
- "bitflags",
- "byteorder",
- "flate2",
 ]
 
 [[package]]
@@ -1733,6 +1703,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "lofty"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "935294f6c058df75c16721ac510398d42afb4cb6a4e3752737e362166fe2ba67"
+dependencies = [
+ "base64 0.20.0",
+ "byteorder",
+ "cfg-if",
+ "flate2",
+ "lofty_attr",
+ "log",
+ "ogg_pager",
+ "once_cell",
+ "paste",
+]
+
+[[package]]
+name = "lofty_attr"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "02f2d46cb443ab8285492be02e5dda3e3a3f39f07cd50e5655069567e67a7de2"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "log"
 version = "0.4.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1825,17 +1823,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "metaflac"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1470d3cc1bb0d692af5eb3afb594330b8ba09fd91c32c4e1c6322172a5ba750"
-dependencies = [
- "byteorder",
- "hex",
- "log",
-]
-
-[[package]]
 name = "migrations_internals"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1869,31 +1856,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b275950c28b37e794e8c55d88aeb5e139d0ce23fdbbeda68f8d7174abdf9e8fa"
 dependencies = [
  "adler",
-]
-
-[[package]]
-name = "mp4ameta"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb23d62e8eb5299a3f79657c70ea9269eac8f6239a76952689bcd06a74057e81"
-dependencies = [
- "lazy_static",
- "mp4ameta_proc",
-]
-
-[[package]]
-name = "mp4ameta_proc"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07dcca13d1740c0a665f77104803360da0bdb3323ecce2e93fa2c959a6d52806"
-
-[[package]]
-name = "mpeg-audio-header"
-version = "0.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18b0abf587179b0741fa60798f0a33950c0ac73e75785bbc4b2996f5050f083d"
-dependencies = [
- "thiserror",
 ]
 
 [[package]]
@@ -2122,6 +2084,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3370abb7372ed744232c12954d920d1a40f1c4686de9e79e800021ef492294bd"
 dependencies = [
  "cc",
+]
+
+[[package]]
+name = "ogg_pager"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a05065bb6e0b933aef28cae4c5469b85011aa0d0285bd5fe3f568bed1f1a1bc"
+dependencies = [
+ "byteorder",
 ]
 
 [[package]]
@@ -2533,12 +2504,6 @@ checksum = "ed7e3d950b66e19e0c372f3fa3fbbcf85b1746b571f74e0c2af6042a5c93420a"
 dependencies = [
  "cty",
 ]
-
-[[package]]
-name = "readme-rustdocifier"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08ad765b21a08b1a8e5cdce052719188a23772bcbefb3c439f0baaf62c56ceac"
 
 [[package]]
 name = "redox_syscall"

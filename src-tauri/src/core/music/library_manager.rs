@@ -4,12 +4,11 @@ use crate::database::schemas::albums::dsl as albums_dsl;
 use crate::database::schemas::tracks::dsl as tracks_dsl;
 use crate::database::sqlite::{get_pool, SqlitePool, SqlitePooled};
 use crate::util::config_manager::ConfigManagerStruct;
-use audiotags::Tag;
 use base64::{engine::general_purpose, Engine as _};
 use diesel::prelude::*;
 use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
-use mpeg_audio_header::ParseMode;
+use lofty::{Accessor, AudioFile, PictureType, Tag, TaggedFile, TaggedFileExt};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -41,53 +40,84 @@ pub fn get_file_infos<P: AsRef<Path>>(file_path: &P) -> Option<MusicFileInfos> {
         return None;
     }
 
-    let tag_result = Tag::new().read_from_path(&file_path);
+    let tagged_file: TaggedFile = if let Ok(open_file) = lofty::Probe::open(file_path) {
+        let detect_file_type_result = open_file.guess_file_type();
+        if let Ok(detect_file_type) = detect_file_type_result {
+            let read_file_result = detect_file_type.read();
+            if let Ok(read_file) = read_file_result {
+                read_file
+            } else {
+                return None;
+            }
+        } else {
+            return None;
+        }
+    } else {
+        return None;
+    };
 
-    if let Ok(tag) = tag_result {
-        return Option::from(MusicFileInfos {
-            title: if let Some(title) = tag.title() {
-                Option::from(title.to_owned())
-            } else {
-                None
-            },
-            cover: if let Some(cover) = tag.album_cover() {
-                Option::from(general_purpose::STANDARD.encode(cover.data))
-            } else {
-                None
-            },
-            artist: if let Some(artist) = tag.album_artist() {
-                Option::from(artist.to_owned())
-            } else if let Some(artist) = tag.artist() {
-                Option::from(artist.to_owned())
-            } else {
-                None
-            },
-            album: if let Some(album_title) = tag.album_title() {
-                Option::from(album_title.to_owned())
-            } else {
-                None
-            },
-            year: if let Some(year) = tag.year() {
-                Option::from(year as i64)
-            } else {
-                None
-            },
-            duration: if let Some(duration) = tag.duration() {
-                Option::from(duration as i64)
-            } else {
-                let header_result = mpeg_audio_header::Header::read_from_path(
-                    file_path,
-                    ParseMode::PreferVbrHeaders,
-                );
-                if let Ok(header) = header_result {
-                    Option::from(header.total_duration.as_secs() as i64)
-                } else {
-                    None
-                }
-            },
-        });
+    let tags: Tag = if let Some(tags) = tagged_file.primary_tag() {
+        tags.clone()
+    } else if let Some(tags) = tagged_file.first_tag() {
+        tags.clone()
+    } else {
+        return None;
+    };
+
+    let pictures = tags.pictures();
+    let mut cover: Option<String> = None;
+    for picture in pictures {
+        if picture.pic_type() == PictureType::CoverFront {
+            cover = Option::from(general_purpose::STANDARD.encode(picture.data()));
+            break;
+        }
     }
-    None
+    if cover.is_none() {
+        if let Some(picture) = pictures.iter().next() {
+            cover = Option::from(general_purpose::STANDARD.encode(picture.data()));
+        }
+    }
+
+    return Option::from(MusicFileInfos {
+        title: if let Some(title) = tags.title() {
+            Option::from(title.to_string())
+        } else {
+            None
+        },
+        cover,
+        artist: if let Some(artist) = tags.artist() {
+            Option::from(artist.to_string())
+        } else {
+            let mut album_name: Option<String> = None;
+            for t in tagged_file.tags() {
+                for i in t.items() {
+                    if format!("{:?}", i.key()) == "AlbumArtist" {
+                        if let Some(album_name_str) = i.value().text() {
+                            album_name = Option::from(album_name_str.to_owned());
+                            break;
+                        }
+                    }
+                }
+
+                if album_name.is_some() {
+                    break;
+                }
+            }
+
+            album_name
+        },
+        album: if let Some(album_title) = tags.album() {
+            Option::from(album_title.to_string())
+        } else {
+            None
+        },
+        year: if let Some(year) = tags.year() {
+            Option::from(year as i64)
+        } else {
+            None
+        },
+        duration: Option::from(tagged_file.properties().duration().as_secs() as i64),
+    });
 }
 
 fn is_hidden(entry: &DirEntry) -> bool {

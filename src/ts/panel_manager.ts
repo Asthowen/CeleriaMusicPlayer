@@ -1,5 +1,5 @@
 interface Panels {
-  [names: string]: () => Promise<void>;
+  [names: string]: (() => Promise<void>) | null;
 }
 
 export default class PanelManager {
@@ -12,7 +12,7 @@ export default class PanelManager {
     this.currentPanel = null;
   }
 
-  registerPanel(name: string, callback: () => Promise<void>) {
+  registerPanel(name: string, callback: (() => Promise<void>) | null) {
     if (
       Object.prototype.hasOwnProperty.call(this.panels, name) ||
       document.getElementById(name) === null
@@ -33,7 +33,7 @@ export default class PanelManager {
     }
     this.currentPanel = name;
     if (Object.prototype.hasOwnProperty.call(this.panels, name)) {
-      await this.panels[name]();
+      await this.panels[name]?.();
     }
     document.getElementById(name)?.classList.remove("hidden");
   }

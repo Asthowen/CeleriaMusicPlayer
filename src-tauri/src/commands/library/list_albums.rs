@@ -12,19 +12,9 @@ pub struct ListAlbums {
 #[tauri::command]
 pub async fn list_albums(
     library_manager: State<'_, LibraryManagerStruct>,
-) -> Result<ListAlbums, ()> {
+) -> Result<Vec<Album>, ()> {
     let library_manager: tokio::sync::MutexGuard<'_, LibraryManager> =
         library_manager.0.lock().await;
 
-    Ok(ListAlbums {
-        list: library_manager.get_all_albums(),
-        pictures_path: dirs::data_dir()
-            .unwrap()
-            .join("celeria")
-            .join("cover")
-            .join("albums")
-            .to_str()
-            .unwrap()
-            .to_string(),
-    })
+    Ok(library_manager.get_all_albums())
 }

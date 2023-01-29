@@ -7,6 +7,7 @@ use kira::manager::{
 };
 use kira::sound::static_sound::{StaticSoundData, StaticSoundHandle, StaticSoundSettings};
 use kira::tween::Tween;
+use kira::Volume;
 use serde::Serialize;
 use std::sync::Arc;
 use std::time::Duration;
@@ -29,7 +30,6 @@ pub struct MusicElementComplete {
     progress: Duration,
     remain_time: Duration,
     file_infos: (Track, Option<Album>),
-    cover_path: String,
 }
 
 pub struct MusicManager {
@@ -223,6 +223,35 @@ impl MusicManager {
         false
     }
 
+    pub async fn set_volume(&mut self, volume: f64) -> bool {
+        let mut current_sound_option = self.current_sound.lock().await;
+        if let Some(current_sound) = current_sound_option.as_mut() {
+            current_sound
+                .set_volume(Volume::Amplitude(volume / 100.0), Tween::default())
+                .ok();
+            return true;
+        }
+        false
+    }
+
+    pub async fn set_progress(&mut self, time: f64) -> bool {
+        let mut current_sound_option = self.current_sound.lock().await;
+        if let Some(current_sound) = current_sound_option.as_mut() {
+            let music_element_read = self.musics_elements.read().await;
+            if let Some(music_element) = music_element_read.get(0) {
+                if time <= music_element.duration.as_secs() as f64 {
+                    drop(music_element_read);
+                    current_sound.seek_to(time).ok();
+
+                    self.musics_elements.write().await[0].started_at =
+                        unix_time() - Duration::from_secs(time as u64);
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
     pub async fn get_current_track_basic(&mut self) -> Option<MusicElement> {
         self.musics_elements.read().await.get(0).cloned()
     }
@@ -246,14 +275,6 @@ impl MusicManager {
                     (music_element.started_at + music_element.duration) - time
                 },
                 file_infos: music_element.file_infos,
-                cover_path: dirs::data_dir()
-                    .unwrap()
-                    .join("celeria")
-                    .join("cover")
-                    .join("albums")
-                    .to_str()
-                    .unwrap()
-                    .to_string(),
             };
             return Option::from(music_element_complete);
         }

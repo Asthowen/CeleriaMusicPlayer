@@ -27,4 +27,5 @@ const formatDuration = (duration: number) => {
   }
   return formattedTime;
 };
+
 export default formatDuration;
