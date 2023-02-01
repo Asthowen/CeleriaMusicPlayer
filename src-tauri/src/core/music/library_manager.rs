@@ -11,6 +11,7 @@ use diesel::RunQueryDsl;
 use lofty::{Accessor, AudioFile, PictureType, Tag, TaggedFile, TaggedFileExt};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
+use std::process::exit;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use walkdir::{DirEntry, WalkDir};
@@ -144,7 +145,10 @@ impl LibraryManager {
         if !file_path.exists() {
             return false;
         }
-        let mut pool: SqlitePooled = self.pool.get().unwrap();
+        let mut pool: SqlitePooled = self.pool.get().unwrap_or_else(|e| {
+            log::error!("An error occurred while acquiring a connection to the database pool: {}", e.to_string());
+            exit(9);
+        });
 
         let file_saved: i32 = tracks_dsl::tracks
             .select(diesel::dsl::sql::<Integer>("1"))
@@ -262,14 +266,21 @@ impl LibraryManager {
     }
 
     pub fn get_all_albums(&self) -> Vec<Album> {
-        let mut pool: SqlitePooled = self.pool.get().unwrap();
+        let mut pool: SqlitePooled = self.pool.get().unwrap_or_else(|e| {
+            log::error!("An error occurred while acquiring a connection to the database pool: {}", e.to_string());
+            exit(9);
+        });
+
         albums_dsl::albums
             .load::<Album>(&mut pool)
             .unwrap_or_default()
     }
 
     pub fn get_album_by_uuid(&self, album_uuid: &str) -> Option<(Album, Vec<Track>)> {
-        let mut pool: SqlitePooled = self.pool.get().unwrap();
+        let mut pool: SqlitePooled = self.pool.get().unwrap_or_else(|e| {
+            log::error!("An error occurred while acquiring a connection to the database pool: {}", e.to_string());
+            exit(9);
+        });
 
         let album: Album = albums_dsl::albums
             .filter(albums_dsl::uuid.eq(&album_uuid))
@@ -286,7 +297,10 @@ impl LibraryManager {
     }
 
     pub fn get_track_by_uuid(&self, track_uuid: &str) -> Option<(Track, Option<Album>)> {
-        let mut pool: SqlitePooled = self.pool.get().unwrap();
+        let mut pool: SqlitePooled = self.pool.get().unwrap_or_else(|e| {
+            log::error!("An error occurred while acquiring a connection to the database pool: {}", e.to_string());
+            exit(9);
+        });
 
         let track: Track = tracks_dsl::tracks
             .filter(tracks_dsl::uuid.eq(track_uuid))

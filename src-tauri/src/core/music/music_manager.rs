@@ -1,3 +1,4 @@
+use std::process::exit;
 use crate::core::music::library_manager::LibraryManagerStruct;
 use crate::database::models::albums::Album;
 use crate::database::models::tracks::Track;
@@ -45,7 +46,10 @@ pub struct MusicManager {
 impl MusicManager {
     pub fn init(library_manager: LibraryManagerStruct) -> Self {
         let manager: AudioManager =
-            AudioManager::<CpalBackend>::new(AudioManagerSettings::default()).unwrap();
+            AudioManager::<CpalBackend>::new(AudioManagerSettings::default()).unwrap_or_else(|e| {
+                log::error!("An error occurred while creating the AudioManager: {}", e.to_string());
+                exit(9);
+            });
 
         Self {
             library_manager,
@@ -107,9 +111,11 @@ impl MusicManager {
                                 {
                                     current_sound.stop(Tween::default()).ok();
                                 }
-                                let sound: StaticSoundHandle =
-                                    manager.lock().await.play(sound_data).unwrap();
-                                *current_sound_clone.lock().await = Option::from(sound);
+                                let sound_result =
+                                    manager.lock().await.play(sound_data);
+                                if let Ok(sound) = sound_result {
+                                    *current_sound_clone.lock().await = Option::from(sound);
+                                }
                             }
                             music_queue.remove(0);
                         } else {
@@ -143,8 +149,12 @@ impl MusicManager {
                     file_infos: track_infos,
                 };
                 self.musics_elements.write().await.push(music_element);
-                let sound: StaticSoundHandle = self.manager.lock().await.play(sound_data).unwrap();
-                *self.current_sound.lock().await = Option::from(sound);
+
+                let sound_result =
+                    self.manager.lock().await.play(sound_data);
+                if let Ok(sound) = sound_result {
+                    *self.current_sound.lock().await = Option::from(sound);
+                }
             } else {
                 return Err(());
             }
@@ -160,7 +170,11 @@ impl MusicManager {
         if player_state == MainPlaybackState::Paused || player_state == MainPlaybackState::Pausing {
             let mut music_queue = self.musics_elements.write().await;
             if !music_queue.is_empty() {
-                self.manager.lock().await.resume(Tween::default()).unwrap();
+                let resume_result = self.manager.lock().await.resume(Tween::default());
+                if resume_result.is_err() {
+                    return false;
+                }
+
                 let mut pause_data = self.pause_data.lock().await;
                 music_queue[0].started_at +=
                     unix_time() - pause_data.unwrap_or(Duration::from_secs(0));
@@ -176,7 +190,11 @@ impl MusicManager {
 
     pub async fn pause(&mut self) -> bool {
         if self.player_state().await == MainPlaybackState::Playing {
-            self.manager.lock().await.pause(Tween::default()).unwrap();
+            let pause_result = self.manager.lock().await.pause(Tween::default());
+            if pause_result.is_err() {
+                return false;
+            }
+
             *self.pause_data.lock().await = Option::from(unix_time());
             return true;
         }
@@ -198,7 +216,10 @@ impl MusicManager {
         let mut music_previous_queue = self.music_previous_queue.write().await;
         if !music_previous_queue.is_empty() {
             if let Some(current_sound) = self.current_sound.lock().await.as_mut() {
-                current_sound.stop(Tween::default()).ok();
+                let stop_result = current_sound.stop(Tween::default());
+                if stop_result.is_err() {
+                    return false;
+                }
             }
 
             let mut musics_queue = self.musics_queue.write().await;
@@ -226,9 +247,11 @@ impl MusicManager {
     pub async fn set_volume(&mut self, volume: f64) -> bool {
         let mut current_sound_option = self.current_sound.lock().await;
         if let Some(current_sound) = current_sound_option.as_mut() {
-            current_sound
-                .set_volume(Volume::Amplitude(volume / 100.0), Tween::default())
-                .ok();
+            let set_volume_result = current_sound
+                .set_volume(Volume::Amplitude(volume / 100.0), Tween::default());
+            if set_volume_result.is_err() {
+                return false;
+            }
             return true;
         }
         false
@@ -241,7 +264,10 @@ impl MusicManager {
             if let Some(music_element) = music_element_read.get(0) {
                 if time <= music_element.duration.as_secs() as f64 {
                     drop(music_element_read);
-                    current_sound.seek_to(time).ok();
+                    let seek_to_result = current_sound.seek_to(time);
+                    if seek_to_result.is_err() {
+                        return false;
+                    }
 
                     self.musics_elements.write().await[0].started_at =
                         unix_time() - Duration::from_secs(time as u64);

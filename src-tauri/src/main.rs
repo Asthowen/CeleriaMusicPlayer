@@ -29,12 +29,18 @@ async fn main() {
     log::info!("Starting Celeria...");
 
     let celeria_data_dir: PathBuf = dirs::data_dir().unwrap_or_else(|| {
-        log::error!("Your system is not supported, please open an issue at: https://github.com/Asthowen/CeleriaMusicPlayer/issues/new so we can add support for your system.");
+        log::error!("An error occurred while retrieving the configuration files folder, please open an issue at: https://github.com/Asthowen/CeleriaMusicPlayer/issues/new so that we can solve your issue.");
         exit(9);
     }).join("celeria");
-    std::fs::create_dir_all(celeria_data_dir).unwrap();
+    std::fs::create_dir_all(celeria_data_dir).unwrap_or_else(|e| {
+        log::error!("An error occurred while creating the configuration files: {}", e.to_string());
+        exit(9);
+    });
 
-    let celeria_config_dir: PathBuf = dirs::config_dir().unwrap().join("celeria");
+    let celeria_config_dir: PathBuf = dirs::config_dir().unwrap_or_else(|| {
+        log::error!("An error occurred while retrieving the configuration files folder, please open an issue at: https://github.com/Asthowen/CeleriaMusicPlayer/issues/new so that we can solve your issue.");
+        exit(9);
+    }).join("celeria");
     let config_manager: ConfigManager = ConfigManager::init(&celeria_config_dir, "config.json");
     let config_manager_struct: ConfigManagerStruct =
         ConfigManagerStruct(Arc::from(Mutex::from(config_manager)));
