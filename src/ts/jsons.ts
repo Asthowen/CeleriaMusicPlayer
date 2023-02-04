@@ -31,3 +31,19 @@ export interface MusicInfos {
   remain_time: Duration;
   file_infos: [Track, Album | null];
 }
+
+export interface ConfigWindow {
+  custom_titlebar: boolean;
+  keep_running_background: boolean;
+}
+
+export interface ConfigLibrary {
+  paths: [string];
+  show_playlists: boolean;
+}
+
+export interface ConfigRepresentation {
+  language: string;
+  library: ConfigLibrary;
+  window: ConfigWindow;
+}

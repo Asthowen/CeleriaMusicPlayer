@@ -1,4 +1,3 @@
-use std::process::exit;
 use crate::core::music::library_manager::LibraryManagerStruct;
 use crate::database::models::albums::Album;
 use crate::database::models::tracks::Track;
@@ -10,6 +9,7 @@ use kira::sound::static_sound::{StaticSoundData, StaticSoundHandle, StaticSoundS
 use kira::tween::Tween;
 use kira::Volume;
 use serde::Serialize;
+use std::process::exit;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{Mutex, RwLock};
@@ -47,7 +47,10 @@ impl MusicManager {
     pub fn init(library_manager: LibraryManagerStruct) -> Self {
         let manager: AudioManager =
             AudioManager::<CpalBackend>::new(AudioManagerSettings::default()).unwrap_or_else(|e| {
-                log::error!("An error occurred while creating the AudioManager: {}", e.to_string());
+                log::error!(
+                    "An error occurred while creating the AudioManager: {}",
+                    e.to_string()
+                );
                 exit(9);
             });
 
@@ -111,8 +114,7 @@ impl MusicManager {
                                 {
                                     current_sound.stop(Tween::default()).ok();
                                 }
-                                let sound_result =
-                                    manager.lock().await.play(sound_data);
+                                let sound_result = manager.lock().await.play(sound_data);
                                 if let Ok(sound) = sound_result {
                                     *current_sound_clone.lock().await = Option::from(sound);
                                 }
@@ -150,8 +152,7 @@ impl MusicManager {
                 };
                 self.musics_elements.write().await.push(music_element);
 
-                let sound_result =
-                    self.manager.lock().await.play(sound_data);
+                let sound_result = self.manager.lock().await.play(sound_data);
                 if let Ok(sound) = sound_result {
                     *self.current_sound.lock().await = Option::from(sound);
                 }
@@ -247,8 +248,8 @@ impl MusicManager {
     pub async fn set_volume(&mut self, volume: f64) -> bool {
         let mut current_sound_option = self.current_sound.lock().await;
         if let Some(current_sound) = current_sound_option.as_mut() {
-            let set_volume_result = current_sound
-                .set_volume(Volume::Amplitude(volume / 100.0), Tween::default());
+            let set_volume_result =
+                current_sound.set_volume(Volume::Amplitude(volume / 100.0), Tween::default());
             if set_volume_result.is_err() {
                 return false;
             }

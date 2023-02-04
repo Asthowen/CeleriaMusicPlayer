@@ -33,7 +33,10 @@ async fn main() {
         exit(9);
     }).join("celeria");
     std::fs::create_dir_all(celeria_data_dir).unwrap_or_else(|e| {
-        log::error!("An error occurred while creating the configuration files: {}", e.to_string());
+        log::error!(
+            "An error occurred while creating the configuration files: {}",
+            e.to_string()
+        );
         exit(9);
     });
 
@@ -106,7 +109,7 @@ async fn main() {
         .manage(config_manager_struct)
         .manage(library_manager_struct)
         .invoke_handler(tauri::generate_handler![
-            commands::infos::infos,
+            commands::utils::infos,
             commands::musics::play_sound,
             commands::musics::sound_infos,
             commands::musics::pause,
@@ -116,7 +119,14 @@ async fn main() {
             commands::musics::set_volume,
             commands::musics::set_progress,
             commands::library::list_albums::list_albums,
-            commands::library::album_infos::album_infos
+            commands::library::list_tracks::list_tracks,
+            commands::library::album_infos::album_infos,
+            commands::settings::get_settings,
+            commands::settings::set_window_custom_titlebar,
+            commands::settings::set_window_keep_running_background,
+            commands::settings::set_library_paths,
+            commands::settings::set_library_show_playlists,
+            commands::utils::open_in_folder,
         ])
         .build(tauri::generate_context!());
     let app = match app_result {

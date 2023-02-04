@@ -2,9 +2,10 @@
 import { appWindow } from "@tauri-apps/api/window";
 // eslint-disable-next-line import/no-unresolved
 import { invoke, convertFileSrc } from "@tauri-apps/api/tauri";
+import { open } from "@tauri-apps/api/dialog";
 import PanelManager from "./panel_manager";
 import formatDuration from "./utils";
-import { Album, Infos, MusicInfos, Track } from "./jsons";
+import { Album, ConfigRepresentation, Infos, MusicInfos, Track } from "./jsons";
 import MusicProgress from "./custom_elements/music_progress";
 
 const panelManager = new PanelManager();
@@ -36,26 +37,33 @@ const playButtonResume: HTMLElement =
   document.getElementById("play-button-resume")!;
 const playButtonPause: HTMLElement =
   document.getElementById("play-button-pause")!;
-const panelAlbumList: HTMLElement =
-  document.getElementById("panel-album-list")!;
-const panelTracksListContainer: HTMLElement = document.getElementById(
-  "panel-tracks-list-container"
+const panelAlbumsList: HTMLElement =
+  document.getElementById("panel-albums-list")!;
+const panelAlbumsNoElements: HTMLElement = document.getElementById(
+  "panel-albums-no-elements"
 )!;
-const panelTracksListAlbumName: HTMLElement = document.getElementById(
-  "panel-tracks-list-album-name"
+const panelTracksList: HTMLElement =
+  document.getElementById("panel-tracks-list")!;
+const panelTracksNoElements: HTMLElement = document.getElementById(
+  "panel-tracks-no-elements"
 )!;
-const panelTracksListAlbumCover = document.getElementById(
-  "panel-tracks-list-album-cover"
+const panelAlbumsTracksListContainer: HTMLElement = document.getElementById(
+  "panel-albums-tracks-list-container"
+)!;
+const panelAlbumsTracksListAlbumName: HTMLElement = document.getElementById(
+  "panel-albums-tracks-list-album-name"
+)!;
+const panelAlbumsTracksListAlbumCover = document.getElementById(
+  "panel-albums-tracks-list-album-cover"
 )! as HTMLImageElement;
-const panelTracksListAlbumYear: HTMLElement = document.getElementById(
-  "panel-tracks-list-album-year"
+const panelAlbumsTracksListAlbumYear: HTMLElement = document.getElementById(
+  "panel-albums-tracks-list-album-year"
 )!;
-const panelTracksListAlbumArtist: HTMLElement = document.getElementById(
-  "panel-tracks-list-album-artist"
+const panelAlbumsTracksListAlbumArtist: HTMLElement = document.getElementById(
+  "panel-albums-tracks-list-album-artist"
 )!;
-const panelTracksListCloseButton: HTMLElement | null = document.getElementById(
-  "panel-tracks-list-close-button"
-);
+const panelAlbumsTracksListCloseButton: HTMLElement | null =
+  document.getElementById("panel-albums-tracks-list-close-button");
 const leftMenuItemAlbums: HTMLElement = document.getElementById(
   "left-menu-item-albums"
 )!;
@@ -76,6 +84,30 @@ const leftMenuSeparatorPlaylists: HTMLElement = document.getElementById(
 )!;
 const leftMenuItemDownloader: HTMLElement = document.getElementById(
   "left-menu-item-downloader"
+)!;
+const soundButton: HTMLElement = document.getElementById("sound-button")!;
+const soundButtonMute: HTMLElement =
+  document.getElementById("sound-button-mute")!;
+const soundButtonUnMute: HTMLElement = document.getElementById(
+  "sound-button-unmute"
+)!;
+const settingsToggleWindowCustomTitlebar: HTMLInputElement =
+  document.getElementById(
+    "settings-toggle-window-custom-titlebar"
+  )! as HTMLInputElement;
+const settingsToggleWindowBackgroundPlaying: HTMLInputElement =
+  document.getElementById(
+    "settings-toggle-window-background-playing"
+  )! as HTMLInputElement;
+const settingsToggleLibraryShowPlaylists: HTMLInputElement =
+  document.getElementById(
+    "settings-toggle-library-show-playlists"
+  )! as HTMLInputElement;
+const settingsAddLibraryButton: HTMLElement = document.getElementById(
+  "settings-add-library-button"
+)!;
+const settingsLibraryListContainer: HTMLElement = document.getElementById(
+  "settings-library-list-container"
 )!;
 
 let leftMenuPreviousSelectedItem: HTMLElement = leftMenuItemAlbums;
@@ -115,18 +147,20 @@ const leftMenuSwitch = (
   leftMenuPreviousSelectedSeparator = separator;
 };
 
-leftMenuItemTracks?.addEventListener("click", () => {
-  if (leftMenuPreviousSelectedItem === leftMenuItemTracks) return;
-
-  panelManager.switchToPanel("panel-in-dev").then();
-  leftMenuSwitch(leftMenuItemTracks, leftMenuSeparatorTracks);
+document.getElementById("open-settings")!.addEventListener("click", () => {
+  panelManager.switchToPanel("panel-settings").then();
 });
-
 leftMenuItemAlbums?.addEventListener("click", () => {
   if (leftMenuPreviousSelectedItem === leftMenuItemAlbums) return;
 
-  panelManager.switchToPanel("panel-album").then();
+  panelManager.switchToPanel("panel-albums").then();
   leftMenuSwitch(leftMenuItemAlbums, leftMenuSeparatorAlbums);
+});
+leftMenuItemTracks?.addEventListener("click", () => {
+  if (leftMenuPreviousSelectedItem === leftMenuItemTracks) return;
+
+  panelManager.switchToPanel("panel-tracks").then();
+  leftMenuSwitch(leftMenuItemTracks, leftMenuSeparatorTracks);
 });
 leftMenuItemPlaylists?.addEventListener("click", () => {
   if (leftMenuPreviousSelectedItem === leftMenuItemPlaylists) return;
@@ -141,8 +175,26 @@ leftMenuItemDownloader?.addEventListener("click", () => {
   leftMenuSwitch(leftMenuItemDownloader, null);
 });
 
-panelTracksListCloseButton?.addEventListener("click", async () => {
-  await panelManager.switchToPanel("panel-album");
+panelAlbumsTracksListCloseButton?.addEventListener("click", async () => {
+  await panelManager.switchToPanel("panel-albums");
+});
+
+soundButton?.addEventListener("click", async () => {
+  if (soundButtonUnMute.classList.contains("hidden")) {
+    const setVolumeResult: boolean = await invoke("set_volume", { volume: 0 });
+    if (!setVolumeResult) return;
+    soundProgressBar.value = "0";
+    soundButtonMute.classList.add("hidden");
+    soundButtonUnMute.classList.remove("hidden");
+  } else {
+    // TODO: change for previous volume
+    const setVolumeResult: boolean = await invoke("set_volume", { volume: 50 });
+    if (!setVolumeResult) return;
+
+    soundProgressBar.value = "50";
+    soundButtonUnMute.classList.add("hidden");
+    soundButtonMute.classList.remove("hidden");
+  }
 });
 
 musicProgress?.addEventListener(
@@ -248,25 +300,111 @@ soundProgressBar?.addEventListener("input", async (event: Event) => {
   }
 });
 
+const removeLibraryElement = async (path: string) => {
+  await invoke("set_library_paths", {
+    value: path,
+    delete: true,
+  });
+
+  const element = document.querySelector(
+    `.settings-library-list-element[path="${path}"]`
+  ) as HTMLElement;
+  element.remove();
+};
+
+const generateLibrairiesList = (librairiesList: [string]) => {
+  const elementAlreadyPresent: string[] = [];
+  // eslint-disable-next-line no-restricted-syntax
+  for (const fetchedElement of settingsLibraryListContainer.getElementsByClassName(
+    "settings-library-list-element"
+  )) {
+    const element: HTMLElement = fetchedElement as HTMLElement;
+    const path: string | null = element.getAttribute("path");
+    if (path !== null) {
+      elementAlreadyPresent.push(path);
+    }
+  }
+
+  // let htmlToAdd = "";
+  // eslint-disable-next-line no-restricted-syntax
+  for (const element of librairiesList) {
+    // eslint-disable-next-line no-continue
+    if (elementAlreadyPresent.includes(element)) continue;
+    const settingsLibraryListElement = document.createElement("div");
+    settingsLibraryListElement.classList.add(
+      "flex",
+      "justify-between",
+      "h-12",
+      "bg-dark-celeria",
+      "rounded-md",
+      "items-center",
+      "settings-library-list-element"
+    );
+    settingsLibraryListElement.setAttribute("path", element);
+
+    settingsLibraryListElement.innerHTML = `
+        <h2 class="text-lg text-white-1 text-mukta ml-4">${element}</h2>
+        <div class="flex flex-row space-x-2 mr-4">
+          <div class="cursor-pointer hover:bg-dark-celeria-2 rounded-md w-8 h-8 flex justify-center items-center settings-library-list-element-open">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white-1">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
+            </svg>
+          </div>
+          <div class="cursor-pointer hover:bg-dark-celeria-2 rounded-md w-8 h-8 flex justify-center items-center settings-library-list-element-delete">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white-1">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+        </div>
+    `;
+    const deleteButton: HTMLElement = settingsLibraryListElement.querySelector(
+      ".settings-library-list-element-delete"
+    )! as HTMLElement;
+    deleteButton.onclick = async () => {
+      await removeLibraryElement(element);
+    };
+
+    const openButton: HTMLElement = settingsLibraryListElement.querySelector(
+      ".settings-library-list-element-open"
+    )! as HTMLElement;
+    openButton.onclick = async () => {
+      console.log(element);
+      await invoke("open_in_folder", {
+        path: element,
+      });
+    };
+    settingsLibraryListContainer.appendChild(settingsLibraryListElement);
+  }
+};
+
 setInterval(() => soundInterval(), 500);
 
-panelManager.registerPanel("panel-album", async () => {
-  const fetchAlbums: [Album] = await invoke("list_albums", {});
+panelManager.registerPanel(
+  "panel-albums",
+  async () => {
+    const fetchAlbums: [Album] = await invoke("list_albums", {});
+    if (fetchAlbums.length < 1) {
+      panelAlbumsList.classList.add("hidden");
+      panelAlbumsNoElements.classList.remove("hidden");
+      return;
+    }
+    panelAlbumsNoElements.classList.add("hidden");
+    panelAlbumsList.classList.remove("hidden");
 
-  let htmlToAdd = "";
+    let htmlToAdd = "";
 
-  // eslint-disable-next-line no-restricted-syntax
-  for (const album of fetchAlbums) {
-    const addHiddenForArtist = album.artist === null ? " hidden" : "";
-    const addCover =
-      album.cover === 0
-        ? ""
-        : `<img class="w-44 h-44 rounded-lg pt-2" src="${convertFileSrc(
-            `${infos.covers_path}/${album.uuid}.png`
-          )}">`;
-    const addHiddenForDiv = album.cover === 1 ? " hidden" : "";
+    // eslint-disable-next-line no-restricted-syntax
+    for (const album of fetchAlbums) {
+      const addHiddenForArtist = album.artist === null ? " hidden" : "";
+      const addCover =
+        album.cover === 0
+          ? ""
+          : `<img class="w-44 h-44 rounded-lg pt-2" src="${convertFileSrc(
+              `${infos.covers_path}/${album.uuid}.png`
+            )}">`;
+      const addHiddenForDiv = album.cover === 1 ? " hidden" : "";
 
-    htmlToAdd += `<div class="bg-dark-celeria w-[15rem] hover:w-[32rem] duration-500 ease-in-out h-80 p-8 rounded-sm group cursor-pointer m-4 album-element" uuid="${album.uuid}">
+      htmlToAdd += `<div class="bg-dark-celeria w-[15rem] hover:w-[32rem] duration-500 ease-in-out h-80 p-8 rounded-sm group cursor-pointer m-4 album-element" uuid="${album.uuid}">
         ${addCover}
         <div class="w-44 h-44 rounded-lg bg-white-3${addHiddenForDiv}"></div>
         <div class="w-[10rem] group-hover:w-[25rem] duration-500 ease-in-out h-[7rem]">
@@ -274,7 +412,8 @@ panelManager.registerPanel("panel-album", async () => {
           <h3 class="pt-1 text-white-1 text-mukta break-properly text-xl${addHiddenForArtist}">${album.artist}</h3>
         </div>
     </div>`;
-    panelAlbumList.innerHTML = htmlToAdd;
+    }
+    panelAlbumsList.innerHTML = htmlToAdd;
 
     // eslint-disable-next-line no-restricted-syntax
     for (const fetchedElement of document.querySelectorAll(".album-element")) {
@@ -283,34 +422,37 @@ panelManager.registerPanel("panel-album", async () => {
       // eslint-disable-next-line no-loop-func
       element.onclick = async () => {
         currentAlbumSelectedUUID = element.getAttribute("uuid");
-        await panelManager.switchToPanel("panel-tracks-list");
+        await panelManager.switchToPanel("panel-albums-tracks-list");
       };
     }
-  }
-});
+  },
+  null
+);
 
-panelManager.registerPanel("panel-tracks-list", async () => {
-  const albumInfos: [Album, [Track]] = await invoke("album_infos", {
-    uuid: currentAlbumSelectedUUID,
-  });
+panelManager.registerPanel(
+  "panel-albums-tracks-list",
+  async () => {
+    const albumInfos: [Album, [Track]] = await invoke("album_infos", {
+      uuid: currentAlbumSelectedUUID,
+    });
 
-  panelTracksListAlbumCover.src = convertFileSrc(
-    `${infos.covers_path}/${albumInfos[0].uuid}.png`
-  );
-  panelTracksListAlbumName.innerText = albumInfos[0].name;
-  if (albumInfos[0].artist !== null) {
-    panelTracksListAlbumArtist.innerText = albumInfos[0].artist;
-  }
-  if (albumInfos[0].year !== null) {
-    panelTracksListAlbumYear.innerText = albumInfos[0].year.toString();
-  }
+    panelAlbumsTracksListAlbumCover.src = convertFileSrc(
+      `${infos.covers_path}/${albumInfos[0].uuid}.png`
+    );
+    panelAlbumsTracksListAlbumName.innerText = albumInfos[0].name;
+    if (albumInfos[0].artist !== null) {
+      panelAlbumsTracksListAlbumArtist.innerText = albumInfos[0].artist;
+    }
+    if (albumInfos[0].year !== null) {
+      panelAlbumsTracksListAlbumYear.innerText = albumInfos[0].year.toString();
+    }
 
-  let htmlToAdd = "";
-  // eslint-disable-next-line no-restricted-syntax
-  for (const [i, track] of albumInfos[1].entries()) {
-    htmlToAdd += `<div class="flex flex-row justify-between hover:bg-dark-celeria cursor-pointer p-3 rounded-lg track-element" uuid="${
-      track.uuid
-    }">
+    let htmlToAdd = "";
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [i, track] of albumInfos[1].entries()) {
+      htmlToAdd += `<div class="flex flex-row justify-between hover:bg-dark-celeria cursor-pointer p-3 rounded-lg album-track-element" uuid="${
+        track.uuid
+      }">
         <div class="flex items-center flex-row space-x-4">
             <span class="text-mukta text-md text-white-1 w-6 flex justify-end">${
               i + 1
@@ -326,21 +468,153 @@ panelManager.registerPanel("panel-tracks-list", async () => {
             </svg>
         </div>
     </div>`;
-  }
-  panelTracksListContainer.innerHTML = htmlToAdd;
-  // eslint-disable-next-line no-restricted-syntax
-  for (const fetchedElement of document.querySelectorAll(".track-element")) {
-    const element: HTMLElement = fetchedElement as HTMLElement;
+    }
+    panelAlbumsTracksListContainer.innerHTML = htmlToAdd;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const fetchedElement of document.querySelectorAll(
+      ".album-track-element"
+    )) {
+      const element: HTMLElement = fetchedElement as HTMLElement;
 
-    element.onclick = () => {
-      invoke("play_sound", {
-        trackUuid: element.getAttribute("uuid"),
-      })
-        .then()
-        .catch();
+      element.onclick = () => {
+        invoke("play_sound", {
+          trackUuid: element.getAttribute("uuid"),
+        })
+          .then()
+          .catch();
+      };
+    }
+  },
+  null
+);
+panelManager.registerPanel(
+  "panel-tracks",
+  async () => {
+    const fetchTracks: [Track] = await invoke("list_tracks", {});
+    if (fetchTracks.length < 1) {
+      panelTracksList.classList.add("hidden");
+      panelTracksNoElements.classList.remove("hidden");
+      return;
+    }
+    panelTracksNoElements.classList.add("hidden");
+    panelTracksList.classList.remove("hidden");
+
+    let htmlToAdd = "";
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [i, track] of fetchTracks.entries()) {
+      let { title } = track;
+      if (title === null) {
+        title = "Inconnu";
+      }
+
+      htmlToAdd += `<div class="flex flex-row justify-between hover:bg-dark-celeria cursor-pointer p-3 rounded-lg track-element" uuid="${
+        track.uuid
+      }">
+        <div class="flex items-center flex-row space-x-4">
+            <span class="text-mukta text-md text-gray-300 w-6 flex justify-end">${
+              i + 1
+            }</span>
+            <p class="text-mukta text-lg text-white-1">${title}</p>
+        </div>
+        <div class="flex items-center flex-row space-x-6 pr-2">
+            <p class="text-mukta text-lg text-white-1 opacity-80">${formatDuration(
+              track.duration
+            )}</p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white-1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+            </svg>
+        </div>
+    </div>`;
+    }
+
+    panelTracksList.innerHTML = htmlToAdd;
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const fetchedElement of document.querySelectorAll(".track-element")) {
+      const element: HTMLElement = fetchedElement as HTMLElement;
+
+      // eslint-disable-next-line no-loop-func
+      element.onclick = async () => {
+        invoke("play_sound", {
+          trackUuid: element.getAttribute("uuid"),
+        })
+          .then()
+          .catch();
+      };
+    }
+  },
+  null
+);
+panelManager.registerPanel(
+  "panel-settings",
+  async () => {
+    const getSettings: ConfigRepresentation = await invoke("get_settings", {});
+
+    settingsToggleWindowCustomTitlebar.checked =
+      getSettings.window.custom_titlebar;
+    settingsToggleWindowBackgroundPlaying.checked =
+      getSettings.window.keep_running_background;
+    settingsToggleLibraryShowPlaylists.checked =
+      getSettings.window.keep_running_background;
+    generateLibrairiesList(getSettings.library.paths);
+
+    settingsToggleLibraryShowPlaylists.onclick = async () => {
+      await invoke("set_window_custom_titlebar", {
+        value: settingsToggleWindowCustomTitlebar.checked,
+      });
     };
-  }
-});
-panelManager.registerPanel("panel-in-dev", null);
+    settingsToggleLibraryShowPlaylists.onclick = async () => {
+      await invoke("set_window_keep_running_background", {
+        value: settingsToggleWindowBackgroundPlaying.checked,
+      });
+    };
+    settingsToggleLibraryShowPlaylists.onclick = async () => {
+      await invoke("set_library_show_playlists", {
+        value: settingsToggleLibraryShowPlaylists.checked,
+      });
+    };
+    settingsAddLibraryButton.onclick = async () => {
+      const selected: string | string[] | null = await open({
+        directory: true,
+        multiple: true,
+      });
+      if (Array.isArray(selected)) {
+        let newLibraryList: null | [string] = null;
 
-panelManager.switchToPanel("panel-album").then();
+        // eslint-disable-next-line no-restricted-syntax
+        for (const element of selected) {
+          // eslint-disable-next-line no-await-in-loop
+          newLibraryList = await invoke("set_library_paths", {
+            value: element,
+            delete: false,
+          });
+        }
+        if (newLibraryList !== null) {
+          generateLibrairiesList(newLibraryList);
+        }
+      } else if (selected !== null) {
+        const newLibraryList: null | [string] = await invoke(
+          "set_library_paths",
+          {
+            value: selected,
+            delete: false,
+          }
+        );
+        if (newLibraryList !== null) {
+          generateLibrairiesList(newLibraryList);
+        }
+      }
+    };
+  },
+  async () => {
+    settingsToggleWindowCustomTitlebar.onclick = null;
+    settingsToggleWindowBackgroundPlaying.onclick = null;
+    settingsToggleLibraryShowPlaylists.onclick = null;
+    settingsAddLibraryButton.onclick = null;
+  }
+);
+
+panelManager.registerPanel("panel-in-dev", null, null);
+
+panelManager.switchToPanel("panel-albums").then();

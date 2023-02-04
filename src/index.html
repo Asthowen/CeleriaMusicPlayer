@@ -61,28 +61,34 @@
             </div>
           </div>
           <div id="main-panel-content">
-            <div id="panel-album" class="pl-10 space-y-4 pt-16 pb-16 pr-10 absolute left-0 w-full flex flex-col min-h-[90%] max-h-[90%] hidden">
+            <div id="panel-albums" class="pl-10 space-y-4 pt-16 pb-16 pr-10 absolute left-0 w-full flex flex-col min-h-[90%] max-h-[90%] hidden">
               <h1 class="text-white-1 text-mukta text-4xl font-bold">Albums à votre disposition</h1>
-              <div id="panel-album-list" class="flex flex-wrap overflow-scroll"></div>
+              <h2 class="text-white-1 text-mukta text-2xl pt-4 hidden" id="panel-albums-no-elements">Vous n'avez aucun album dans votre bibliothèque.</h2>
+              <div id="panel-albums-list" class="flex flex-wrap overflow-scroll hidden"></div>
             </div>
-            <div id="panel-tracks-list" class="pl-10 pr-10 pb-16 space-y-4 flex flex-col absolute left-0 min-h-[90%] max-h-[90%] w-full hidden">
-              <div class="absolute mr-20 top-0 right-0 cursor-pointer mt-2 hover:bg-dark-celeria rounded-md" id="panel-tracks-list-close-button">
+            <div id="panel-albums-tracks-list" class="pl-10 pr-10 pb-16 space-y-4 flex flex-col absolute left-0 min-h-[90%] max-h-[90%] w-full hidden">
+              <div class="absolute mr-20 top-0 right-0 cursor-pointer mt-2 hover:bg-dark-celeria rounded-md" id="panel-albums-tracks-list-close-button">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white-1">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
               <div class="flex flex-row">
-                <img class="w-52 h-52 shadow-2xl" id="panel-tracks-list-album-cover">
+                <img class="w-52 h-52 shadow-2xl" id="panel-albums-tracks-list-album-cover">
                 <div class="pl-8 flex flex-col justify-center h-52">
-                  <h1 class="text-mukta font-bold text-6xl text-white-1" id="panel-tracks-list-album-name"></h1>
+                  <h1 class="text-mukta font-bold text-6xl text-white-1" id="panel-albums-tracks-list-album-name"></h1>
                   <div class="flex flex-row items-center mt-1 space-x-3">
-                    <h2 class="text-mukta font-semibold text-2xl text-white-1" id="panel-tracks-list-album-artist"></h2>
+                    <h2 class="text-mukta font-semibold text-2xl text-white-1" id="panel-albums-tracks-list-album-artist"></h2>
                     <span class="text-lg text-mukta font-bold text-white-1"> - </span>
-                    <span class="text-lg text-mukta font-semibold text-white-1" id="panel-tracks-list-album-year"></span>
+                    <span class="text-lg text-mukta font-semibold text-white-1" id="panel-albums-tracks-list-album-year"></span>
                   </div>
                 </div>
               </div>
-              <div class="flex flex-col w-full pt-6 overflow-scroll pr-2" id="panel-tracks-list-container"></div>
+              <div class="flex flex-col w-full pt-6 overflow-scroll pr-2" id="panel-albums-tracks-list-container"></div>
+            </div>
+            <div id="panel-tracks" class="pl-10 space-y-4 pt-16 pb-16 pr-10 absolute left-0 w-full flex flex-col min-h-[90%] max-h-[90%] hidden" style="backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px)">
+              <h1 class="text-white-1 text-mukta text-4xl font-bold">Morceaux à votre disposition</h1>
+              <h2 class="text-white-1 text-mukta text-2xl pt-4 hidden" id="panel-tracks-no-elements">Vous n'avez aucun titre dans votre bibliothèque.</h2>
+              <div id="panel-tracks-list" class="flex flex-col overflow-scroll hidden"></div>
             </div>
             <div id="panel-in-dev" class="pl-10 space-y-4 pt-16 pb-16 pr-10 absolute left-0 w-full flex flex-col min-h-[90%] max-h-[90%] hidden">
               <h1 class="text-white-1 text-mukta text-4xl font-bold select-text pr-8">Ce menu n'est pas encore disponible.</h1>
@@ -90,11 +96,82 @@
                 <h2 class="text-white-1 text-mukta text-2xl select-all">Ce menu est encore en cours de développement et arrivera prochainement. <br>Vous pouvez nous rejoindre sur Discord : <a href="https://discord.com/invite/93s7WzBbq7" class="text-purple-500 font-bold text-mukta">https://discord.com/invite/93s7WzBbq7</a> pour obtenir des informations sur l'avancée du projet.</h2>
               </div>
             </div>
+            <div id="panel-settings" class="pl-10 space-y-4 pt-16 pb-16 pr-10 absolute left-0 w-full flex flex-col min-h-[90%] max-h-[90%] hidden overflow-scroll">
+              <h1 class="text-white-1 text-mukta text-4xl font-bold select-text pr-8">Paramètres</h1>
+              <div class="w-full h-full flex flex-col pt-8 space-y-12">
+                <div class="flex flex-col pl-4">
+                  <h2 class="text-white-1 text-mukta text-2xl select-text">Fenêtre</h2>
+                  <div class="flex flex-col">
+                    <div class="flex flex-row justify-between items-center pt-4 pl-4 pr-4">
+                      <div>
+                        <h3 class="text-white-1 text-mukta text-lg">Barre de titre custom</h3>
+                        <p class="text-gray-300 text-mukta text-sm">Ce paramètre permet d'activer une barre de menu intégrée à la fenêtre de Celeria plutôt que celle du système.</p>
+                      </div>
+                      <div>
+                        <div class="flex flex-row justify-between">
+                          <label for="settings-toggle-window-custom-titlebar" class="flex items-center cursor-pointer relative">
+                            <input type="checkbox" name="settings-toggle-window-custom-titlebar" id="settings-toggle-window-custom-titlebar" class="checkbox hidden">
+                            <div class="block border-[1px] dark:border-white border-green-celeria w-14 h-8 rounded-full"></div>
+                            <div class="toggle-input-dot absolute left-1 top-1 dark:bg-white bg-green-celeria w-6 h-6 rounded-full transition"></div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex flex-row justify-between items-center pt-4 pl-4 pr-4">
+                      <div>
+                        <h3 class="text-white-1 text-mukta text-lg">Lecture en arrière plan</h3>
+                        <p class="text-gray-300 text-mukta text-sm">Ce paramètre permet de conserver la lecture de la musique après avoir fermé la fenêtre de Celeria.</p>
+                      </div>
+                      <div>
+                          <div class="flex flex-row justify-between">
+                            <label for="settings-toggle-window-background-playing" class="flex items-center cursor-pointer relative">
+                                <input type="checkbox" name="settings-toggle-window-background-playing" id="settings-toggle-window-background-playing" class="checkbox hidden">
+                                <div class="block border-[1px] dark:border-white border-green-celeria w-14 h-8 rounded-full"></div>
+                                <div class="toggle-input-dot absolute left-1 top-1 dark:bg-white bg-green-celeria w-6 h-6 rounded-full transition"></div>
+                            </label>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex flex-col pl-4">
+                  <h2 class="text-white-1 text-mukta text-2xl select-text">Bibliothèque</h2>
+                  <div class="flex flex-col">
+                    <div class="flex flex-row justify-between items-center pt-4 pl-4 pr-4">
+                      <div>
+                        <h3 class="text-white-1 text-mukta text-lg">Affichage des playlists</h3>
+                        <p class="text-gray-300 text-mukta text-sm">Ce paramètre permet ou non la création de playlists.</p>
+                      </div>
+                      <div>
+                        <div class="flex flex-row justify-between">
+                          <label for="settings-toggle-library-show-playlists" class="flex items-center cursor-pointer relative">
+                            <input type="checkbox" name="settings-toggle-library-show-playlists" id="settings-toggle-library-show-playlists" class="checkbox hidden">
+                            <div class="block border-[1px] dark:border-white border-green-celeria w-14 h-8 rounded-full"></div>
+                            <div class="toggle-input-dot absolute left-1 top-1 dark:bg-white bg-green-celeria w-6 h-6 rounded-full transition"></div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex flex-col justify-between items-center pt-6 pl-4 pr-4">
+                      <div class="flex justify-between items-center flex-row w-full">
+                        <h3 class="text-white-1 text-mukta text-lg">Liste des bibliothèques</h3>
+                        <div class="cursor-pointer hover:bg-dark-celeria rounded-md w-8 h-8 flex justify-center items-center" id="settings-add-library-button">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div class="flex flex-col w-full mt-2 space-y-4" id="settings-library-list-container"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <div id="bottom-panel" class="w-screen h-[10%] min-h-[85px] flex flex-col fixed bottom-0 left-0">
-        <music-progress min-value=0 max-value=100 reloadRequire class="h-1 duration-500 ease-in-out w-full cursor-pointer" id="music-progress"></music-progress>
+        <music-progress min-value=0 max-value=100 reloadRequire class="h-1 duration-500 ease-in-out w-full cursor-pointer absolute -translate-y-1" id="music-progress"></music-progress>
         <div class="w-full h-full flex flex-row">
           <div class="pl-8 flex flex-row space-x-4 h-full items-center basis-1/3">
             <div>
@@ -129,11 +206,15 @@
           </div>
           <div class="flex basis-1/3 items-center justify-end pr-8">
             <div class="flex flex-row items-center justify-end w-1/2 space-x-4">
-              <div>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-white-1">
+              <div id="sound-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-white-1 cursor-pointer" id="sound-button-mute">
                   <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM18.584 5.106a.75.75 0 011.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 11-1.06-1.06 8.25 8.25 0 000-11.668.75.75 0 010-1.06z" />
                   <path d="M15.932 7.757a.75.75 0 011.061 0 6 6 0 010 8.486.75.75 0 01-1.06-1.061 4.5 4.5 0 000-6.364.75.75 0 010-1.06z" />
                 </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-white-1 cursor-pointer hidden" id="sound-button-unmute">
+                  <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM17.78 9.22a.75.75 0 10-1.06 1.06L18.44 12l-1.72 1.72a.75.75 0 001.06 1.06l1.72-1.72 1.72 1.72a.75.75 0 101.06-1.06L20.56 12l1.72-1.72a.75.75 0 00-1.06-1.06l-1.72 1.72-1.72-1.72z" />
+                </svg>
+
               </div>
               <label for="sound-progressbar"></label>
               <input type="range" class="w-1/2 h-3 rounded-md cursor-pointer test" id="sound-progressbar">

@@ -7,13 +7,36 @@ use tokio::sync::Mutex;
 #[derive(Clone)]
 pub struct ConfigManagerStruct(pub Arc<Mutex<ConfigManager>>);
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConfigRepresentation {
-    pub language: String,
-    pub librairies_path: Vec<String>,
+fn default_to_true() -> bool {
+    true
 }
 
-impl Default for ConfigRepresentation {
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ConfigWindow {
+    #[serde(default = "default_to_true")]
+    pub custom_titlebar: bool,
+    #[serde(default = "default_to_true")]
+    pub keep_running_background: bool,
+}
+
+impl Default for ConfigWindow {
+    fn default() -> Self {
+        Self {
+            custom_titlebar: true,
+            keep_running_background: true,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ConfigLibrary {
+    #[serde(default)]
+    pub paths: Vec<String>,
+    #[serde(default = "default_to_true")]
+    pub show_playlists: bool,
+}
+
+impl Default for ConfigLibrary {
     fn default() -> Self {
         let audio_dir_option: Option<PathBuf> = dirs::audio_dir();
         let librairies_path: Vec<String> = if let Some(audio_dir) = audio_dir_option {
@@ -23,8 +46,28 @@ impl Default for ConfigRepresentation {
         };
 
         Self {
+            paths: librairies_path,
+            show_playlists: true,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ConfigRepresentation {
+    #[serde(default)]
+    pub language: String,
+    #[serde(default)]
+    pub library: ConfigLibrary,
+    #[serde(default)]
+    pub window: ConfigWindow,
+}
+
+impl Default for ConfigRepresentation {
+    fn default() -> Self {
+        Self {
             language: "auto".to_owned(),
-            librairies_path,
+            library: Default::default(),
+            window: Default::default(),
         }
     }
 }
@@ -41,7 +84,9 @@ impl ConfigManager {
         let file_path: PathBuf = config_path.join(file_name);
 
         let config: ConfigRepresentation = if file_path.exists() {
-            read_json_file(&file_path)
+            let config = read_json_file(&file_path);
+            save_json_to_file(&config, &file_path);
+            config
         } else {
             let config: ConfigRepresentation = ConfigRepresentation::default();
             save_json_to_file(&config, &file_path);
@@ -56,7 +101,9 @@ impl ConfigManager {
 
     pub fn reload_config(&mut self) -> ConfigRepresentation {
         self.config = if self.config_path.exists() {
-            read_json_file(&self.config_path)
+            let config = read_json_file(&self.config_path);
+            save_json_to_file(&config, &self.config_path);
+            config
         } else {
             let config: ConfigRepresentation = ConfigRepresentation::default();
             save_json_to_file(&config, &self.config_path);
@@ -67,5 +114,13 @@ impl ConfigManager {
 
     pub fn get_config(&self) -> ConfigRepresentation {
         self.config.clone()
+    }
+
+    pub fn get_config_mut(&mut self) -> &mut ConfigRepresentation {
+        &mut self.config
+    }
+
+    pub fn save_config(&self) {
+        save_json_to_file(&self.config, &self.config_path);
     }
 }

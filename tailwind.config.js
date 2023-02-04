@@ -16,6 +16,10 @@ module.exports = {
         },
         dark: {
           celeria: "#131313",
+          "celeria-2": "#303030",
+        },
+        green: {
+          celeria: "#097b83",
         },
       },
       minWidth: {

@@ -41,7 +41,7 @@ pub fn get_file_infos<P: AsRef<Path>>(file_path: &P) -> Option<MusicFileInfos> {
         return None;
     }
 
-    let tagged_file: TaggedFile = if let Ok(open_file) = lofty::Probe::open(file_path) {
+    let tagged_file: TaggedFile = if let Ok(open_file) = lofty::Probe::open(&file_path) {
         let detect_file_type_result = open_file.guess_file_type();
         if let Ok(detect_file_type) = detect_file_type_result {
             let read_file_result = detect_file_type.read();
@@ -83,7 +83,11 @@ pub fn get_file_infos<P: AsRef<Path>>(file_path: &P) -> Option<MusicFileInfos> {
         title: if let Some(title) = tags.title() {
             Option::from(title.to_string())
         } else {
-            None
+            if let Some(file_str) = file_path.file_stem() {
+                Option::from(file_str.to_str().unwrap_or("").to_owned())
+            } else {
+                None
+            }
         },
         cover,
         artist: if let Some(artist) = tags.artist() {
@@ -146,7 +150,10 @@ impl LibraryManager {
             return false;
         }
         let mut pool: SqlitePooled = self.pool.get().unwrap_or_else(|e| {
-            log::error!("An error occurred while acquiring a connection to the database pool: {}", e.to_string());
+            log::error!(
+                "An error occurred while acquiring a connection to the database pool: {}",
+                e.to_string()
+            );
             exit(9);
         });
 
@@ -243,7 +250,8 @@ impl LibraryManager {
             .lock()
             .await
             .get_config()
-            .librairies_path;
+            .library
+            .paths;
         let mut added_counter: i64 = 0;
         for library in libraries {
             for entry in WalkDir::new(library)
@@ -267,18 +275,40 @@ impl LibraryManager {
 
     pub fn get_all_albums(&self) -> Vec<Album> {
         let mut pool: SqlitePooled = self.pool.get().unwrap_or_else(|e| {
-            log::error!("An error occurred while acquiring a connection to the database pool: {}", e.to_string());
+            log::error!(
+                "An error occurred while acquiring a connection to the database pool: {}",
+                e.to_string()
+            );
             exit(9);
         });
 
         albums_dsl::albums
+            .order(albums_dsl::name.asc())
             .load::<Album>(&mut pool)
+            .unwrap_or_default()
+    }
+
+    pub fn get_all_tracks(&self) -> Vec<Track> {
+        let mut pool: SqlitePooled = self.pool.get().unwrap_or_else(|e| {
+            log::error!(
+                "An error occurred while acquiring a connection to the database pool: {}",
+                e.to_string()
+            );
+            exit(9);
+        });
+
+        tracks_dsl::tracks
+            .order(tracks_dsl::title.asc())
+            .load::<Track>(&mut pool)
             .unwrap_or_default()
     }
 
     pub fn get_album_by_uuid(&self, album_uuid: &str) -> Option<(Album, Vec<Track>)> {
         let mut pool: SqlitePooled = self.pool.get().unwrap_or_else(|e| {
-            log::error!("An error occurred while acquiring a connection to the database pool: {}", e.to_string());
+            log::error!(
+                "An error occurred while acquiring a connection to the database pool: {}",
+                e.to_string()
+            );
             exit(9);
         });
 
@@ -298,7 +328,10 @@ impl LibraryManager {
 
     pub fn get_track_by_uuid(&self, track_uuid: &str) -> Option<(Track, Option<Album>)> {
         let mut pool: SqlitePooled = self.pool.get().unwrap_or_else(|e| {
-            log::error!("An error occurred while acquiring a connection to the database pool: {}", e.to_string());
+            log::error!(
+                "An error occurred while acquiring a connection to the database pool: {}",
+                e.to_string()
+            );
             exit(9);
         });
 
