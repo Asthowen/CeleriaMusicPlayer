@@ -34,7 +34,7 @@ pub fn open_in_folder(path: String) {
 
     #[cfg(target_os = "linux")]
     {
-        if path.contains(",") {
+        if path.contains(',') {
             // see https://gitlab.freedesktop.org/dbus/dbus/-/issues/76
             let new_path = match std::fs::metadata(&path).unwrap().is_dir() {
                 true => path,

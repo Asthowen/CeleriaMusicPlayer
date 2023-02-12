@@ -9,13 +9,16 @@ use celeria::core::music::music_manager::{MusicManager, MusicManagerStruct};
 use celeria::database::sqlite::SqlitePooled;
 use celeria::util::config_manager::{ConfigManager, ConfigManagerStruct};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use kira::manager::MainPlaybackState;
 use std::path::PathBuf;
 use std::process::exit;
 use std::sync::Arc;
 use std::time::Instant;
-#[cfg(debug_assertions)]
 use tauri::Manager;
-use tauri::Menu;
+use tauri::{
+    CustomMenuItem, Menu, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
+    WindowUrl,
+};
 use tokio::sync::Mutex;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
@@ -100,13 +103,64 @@ async fn main() {
     log::debug!("Starting music manager...");
     let mut music_manager: MusicManager = MusicManager::init(library_manager_struct.clone());
     music_manager.start_queue_manager().await;
+    let music_manager_arc: Arc<Mutex<MusicManager>> = Arc::from(Mutex::from(music_manager));
+    let music_manager_arc_1: Arc<Mutex<MusicManager>> = music_manager_arc.clone();
     log::debug!("Music manager started!");
+
+    let tray_menu: SystemTrayMenu = SystemTrayMenu::new()
+        .add_item(CustomMenuItem::new("open", "Ouvrir Celeria"))
+        .add_item(CustomMenuItem::new("play", "Play/Pause"))
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(CustomMenuItem::new("github", "GitHub"))
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(CustomMenuItem::new("leave", "Quitter Celeria"));
+    let system_tray: SystemTray = SystemTray::new().with_menu(tray_menu);
 
     let app_result = tauri::Builder::default()
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_single_instance::init(|_, _, _| {}))
         .menu(Menu::new())
-        .manage(MusicManagerStruct(Arc::from(Mutex::from(music_manager))))
-        .manage(config_manager_struct)
+        .system_tray(system_tray)
+        .on_system_tray_event(move |app, event| {
+            if let SystemTrayEvent::MenuItemClick { id, .. } = event {
+                match id.as_str() {
+                    "open" => {
+                        if let Some(window) = app.get_window("main") {
+                            window.show().ok();
+                        } else if tauri::WindowBuilder::new(
+                            app,
+                            "main",
+                            WindowUrl::App(PathBuf::from("index.html")),
+                        )
+                        .build()
+                        .is_err()
+                        {
+                            app.restart();
+                        }
+                    }
+                    "play" => {
+                        let music_manager_arc_clone = music_manager_arc_1.clone();
+                        tokio::runtime::Handle::current().spawn(async move {
+                            let mut music_manager = music_manager_arc_clone.lock().await;
+                            if music_manager.player_state().await == MainPlaybackState::Playing {
+                                music_manager.pause().await;
+                            } else {
+                                music_manager.resume().await;
+                            }
+                        });
+                    }
+                    "github" => {
+                        open::that("https://github.com/Asthowen/CeleriaMusicPlayer").ok();
+                    }
+                    "leave" => {
+                        exit(0);
+                    }
+                    _ => {}
+                }
+            }
+        })
+        .manage(MusicManagerStruct(music_manager_arc))
+        .manage(config_manager_struct.clone())
         .manage(library_manager_struct)
         .invoke_handler(tauri::generate_handler![
             commands::utils::infos,
@@ -122,10 +176,7 @@ async fn main() {
             commands::library::list_tracks::list_tracks,
             commands::library::album_infos::album_infos,
             commands::settings::get_settings,
-            commands::settings::set_window_custom_titlebar,
-            commands::settings::set_window_keep_running_background,
-            commands::settings::set_library_paths,
-            commands::settings::set_library_show_playlists,
+            commands::settings::set_setting,
             commands::utils::open_in_folder,
         ])
         .build(tauri::generate_context!());
@@ -140,8 +191,24 @@ async fn main() {
         }
     };
 
-    app.run(move |app, event| {
-        if let tauri::RunEvent::Ready = event {
+    app.run(move |app, event| match event {
+        tauri::RunEvent::ExitRequested { api, .. } => {
+            api.prevent_exit();
+            let config_manager_struct_clone = config_manager_struct.clone();
+            tokio::runtime::Handle::current().spawn(async move {
+                if !config_manager_struct_clone
+                    .0
+                    .lock()
+                    .await
+                    .get_config()
+                    .window
+                    .keep_running_background
+                {
+                    exit(0);
+                }
+            });
+        }
+        tauri::RunEvent::Ready {} => {
             log::info!("Celeria started in {}ms!", start_time.elapsed().as_millis());
 
             #[cfg(debug_assertions)]
@@ -150,5 +217,6 @@ async fn main() {
                 window.open_devtools();
             }
         }
+        _ => {}
     })
 }

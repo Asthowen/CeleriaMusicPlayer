@@ -301,9 +301,11 @@ soundProgressBar?.addEventListener("input", async (event: Event) => {
 });
 
 const removeLibraryElement = async (path: string) => {
-  await invoke("set_library_paths", {
-    value: path,
-    delete: true,
+  await invoke("set_setting", {
+    value: {
+      property: "library_paths_delete",
+      value: path,
+    },
   });
 
   const element = document.querySelector(
@@ -559,19 +561,28 @@ panelManager.registerPanel(
       getSettings.window.keep_running_background;
     generateLibrairiesList(getSettings.library.paths);
 
-    settingsToggleLibraryShowPlaylists.onclick = async () => {
-      await invoke("set_window_custom_titlebar", {
-        value: settingsToggleWindowCustomTitlebar.checked,
+    settingsToggleWindowCustomTitlebar.onclick = async () => {
+      await invoke("set_setting", {
+        value: {
+          property: "window_custom_titlebar",
+          value: settingsToggleWindowCustomTitlebar.checked,
+        },
+      });
+    };
+    settingsToggleWindowBackgroundPlaying.onclick = async () => {
+      await invoke("set_setting", {
+        value: {
+          property: "window_keep_running_background",
+          value: settingsToggleWindowBackgroundPlaying.checked,
+        },
       });
     };
     settingsToggleLibraryShowPlaylists.onclick = async () => {
-      await invoke("set_window_keep_running_background", {
-        value: settingsToggleWindowBackgroundPlaying.checked,
-      });
-    };
-    settingsToggleLibraryShowPlaylists.onclick = async () => {
-      await invoke("set_library_show_playlists", {
-        value: settingsToggleLibraryShowPlaylists.checked,
+      await invoke("set_setting", {
+        value: {
+          property: "library_show_playlists",
+          value: settingsToggleLibraryShowPlaylists.checked,
+        },
       });
     };
     settingsAddLibraryButton.onclick = async () => {
@@ -585,22 +596,23 @@ panelManager.registerPanel(
         // eslint-disable-next-line no-restricted-syntax
         for (const element of selected) {
           // eslint-disable-next-line no-await-in-loop
-          newLibraryList = await invoke("set_library_paths", {
-            value: element,
-            delete: false,
+          newLibraryList = await invoke("set_setting", {
+            value: {
+              property: "library_paths_add",
+              value: element,
+            },
           });
         }
         if (newLibraryList !== null) {
           generateLibrairiesList(newLibraryList);
         }
       } else if (selected !== null) {
-        const newLibraryList: null | [string] = await invoke(
-          "set_library_paths",
-          {
+        const newLibraryList: null | [string] = await invoke("set_setting", {
+          value: {
+            property: "library_paths_add",
             value: selected,
-            delete: false,
-          }
-        );
+          },
+        });
         if (newLibraryList !== null) {
           generateLibrairiesList(newLibraryList);
         }

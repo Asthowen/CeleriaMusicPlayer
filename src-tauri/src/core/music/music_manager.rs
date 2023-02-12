@@ -14,6 +14,9 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{Mutex, RwLock};
 
+pub type QueueType = Arc<RwLock<Vec<(Track, Option<Album>)>>>;
+
+#[derive(Clone)]
 pub struct MusicManagerStruct(pub Arc<Mutex<MusicManager>>);
 
 #[derive(Clone, Debug, Serialize)]
@@ -37,8 +40,8 @@ pub struct MusicManager {
     library_manager: LibraryManagerStruct,
     manager: Arc<Mutex<AudioManager>>,
     musics_elements: Arc<RwLock<Vec<MusicElement>>>,
-    musics_queue: Arc<RwLock<Vec<(Track, Option<Album>)>>>,
-    music_previous_queue: Arc<RwLock<Vec<(Track, Option<Album>)>>>,
+    musics_queue: QueueType,
+    music_previous_queue: QueueType,
     current_sound: Arc<Mutex<Option<StaticSoundHandle>>>,
     pause_data: Arc<Mutex<Option<Duration>>>,
 }

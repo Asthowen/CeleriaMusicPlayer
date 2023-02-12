@@ -82,12 +82,10 @@ pub fn get_file_infos<P: AsRef<Path>>(file_path: &P) -> Option<MusicFileInfos> {
     return Option::from(MusicFileInfos {
         title: if let Some(title) = tags.title() {
             Option::from(title.to_string())
+        } else if let Some(file_str) = file_path.file_stem() {
+            Option::from(file_str.to_str().unwrap_or("").to_owned())
         } else {
-            if let Some(file_str) = file_path.file_stem() {
-                Option::from(file_str.to_str().unwrap_or("").to_owned())
-            } else {
-                None
-            }
+            None
         },
         cover,
         artist: if let Some(artist) = tags.artist() {
