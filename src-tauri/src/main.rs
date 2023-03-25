@@ -150,7 +150,7 @@ async fn main() {
                         });
                     }
                     "github" => {
-                        open::that("https://github.com/Asthowen/CeleriaMusicPlayer").ok();
+                        opener::open("https://github.com/Asthowen/CeleriaMusicPlayer").ok();
                     }
                     "leave" => {
                         exit(0);
