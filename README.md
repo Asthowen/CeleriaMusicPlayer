@@ -30,9 +30,8 @@
 - [ ] Add parameters for music playback (fades/other)
 - [ ] Playlist management
 - [ ] GitHub wiki
-- [ ] Add some Github Actions
-
-
+- [ ] Add some GitHub Actions
+- [ ] Add a page of configuration proposals at first startup
 
 ## Contributors
 [<img width="45" src="https://avatars.githubusercontent.com/u/59535754?v=4" alt="Asthowen">](https://github.com/Asthowen)

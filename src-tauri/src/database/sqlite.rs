@@ -12,7 +12,7 @@ pub fn get_pool<P: AsRef<Path>>(db_path: P) -> SqlitePool {
     let manager: ConnectionManager<SqliteConnection> =
         ConnectionManager::<SqliteConnection>::new(db_path.to_str().unwrap());
     Pool::builder()
-        .max_size(1)
+        .max_size(10)
         .connection_timeout(std::time::Duration::from_secs(1))
         .build(manager)
         .map_err(|err| {

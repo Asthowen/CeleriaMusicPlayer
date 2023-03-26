@@ -11,9 +11,8 @@ pub async fn album_infos(
     let library_manager: tokio::sync::MutexGuard<'_, LibraryManager> =
         library_manager.0.lock().await;
 
-    if let Some(album_infos) = library_manager.get_album_by_uuid(uuid) {
-        Ok(album_infos)
-    } else {
-        Err(())
-    }
+    library_manager
+        .get_album_by_uuid(uuid)
+        .map(Ok)
+        .unwrap_or(Err(()))
 }
