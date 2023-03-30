@@ -20,6 +20,12 @@ pub type QueueType = Arc<RwLock<Vec<(Track, Option<Album>)>>>;
 pub struct MusicManagerStruct(pub Arc<Mutex<MusicManager>>);
 
 #[derive(Clone, Debug, Serialize)]
+pub struct MusicQueue {
+    previous: Vec<(Track, Option<Album>)>,
+    next: Vec<(Track, Option<Album>)>,
+}
+
+#[derive(Clone, Debug, Serialize)]
 pub struct MusicElement {
     duration: Duration,
     started_at: Duration,
@@ -309,6 +315,23 @@ impl MusicManager {
             return Option::from(music_element_complete);
         }
         None
+    }
+
+    pub async fn get_queue_infos(&self) -> Option<MusicQueue> {
+        let mut queue: MusicQueue = MusicQueue {
+            previous: Vec::new(),
+            next: Vec::new(),
+        };
+
+        for music in self.music_previous_queue.read().await.iter().cloned() {
+            queue.previous.push(music);
+        }
+
+        for music in self.musics_queue.read().await.iter().cloned() {
+            queue.next.push(music);
+        }
+
+        Option::from(queue)
     }
 
     pub async fn player_state(&mut self) -> MainPlaybackState {

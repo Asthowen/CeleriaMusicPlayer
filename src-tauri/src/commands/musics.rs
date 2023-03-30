@@ -1,4 +1,4 @@
-use crate::core::music::music_manager::{MusicElementComplete, MusicManagerStruct};
+use crate::core::music::music_manager::{MusicElementComplete, MusicManagerStruct, MusicQueue};
 use tauri::State;
 
 #[tauri::command]
@@ -61,4 +61,11 @@ pub async fn sound_infos(
         .await
         .get_current_track_complete()
         .await)
+}
+
+#[tauri::command]
+pub async fn queue_infos(
+    music_manager: State<'_, MusicManagerStruct>,
+) -> Result<Option<MusicQueue>, ()> {
+    Ok(music_manager.0.lock().await.get_queue_infos().await)
 }

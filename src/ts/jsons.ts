@@ -47,3 +47,8 @@ export interface ConfigRepresentation {
   library: ConfigLibrary;
   window: ConfigWindow;
 }
+
+export interface MusicQueue {
+  previous: [Track, Album | null][];
+  next: [Track, Album | null][];
+}

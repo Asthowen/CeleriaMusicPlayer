@@ -2,10 +2,18 @@
 import { appWindow } from "@tauri-apps/api/window";
 // eslint-disable-next-line import/no-unresolved
 import { invoke, convertFileSrc } from "@tauri-apps/api/tauri";
+// eslint-disable-next-line import/no-unresolved
 import { open } from "@tauri-apps/api/dialog";
 import PanelManager from "./panel_manager";
 import formatDuration from "./utils";
-import { Album, ConfigRepresentation, Infos, MusicInfos, Track } from "./jsons";
+import {
+  Album,
+  ConfigRepresentation,
+  Infos,
+  MusicInfos,
+  Track,
+  MusicQueue,
+} from "./jsons";
 import MusicProgress from "./custom_elements/music_progress";
 
 const panelManager = new PanelManager();
@@ -109,12 +117,15 @@ const settingsAddLibraryButton: HTMLElement = document.getElementById(
 const settingsLibraryListContainer: HTMLElement = document.getElementById(
   "settings-library-list-container"
 )!;
+const queueContainer: HTMLElement = document.getElementById("queue-container")!;
+const queueButton: HTMLElement = document.getElementById("queue-button")!;
 
 let leftMenuPreviousSelectedItem: HTMLElement = leftMenuItemAlbums;
 let leftMenuPreviousSelectedSeparator: HTMLElement | null =
   leftMenuSeparatorAlbums;
 let currentAlbumSelectedUUID: string | null = null;
 let currentPlayerSoundUUID: string | null = null;
+let currentTrack: [Track, Album | null] | null = null;
 const infos: Infos = await invoke("infos", {});
 
 titleBarClose?.addEventListener("click", () => appWindow.close());
@@ -177,6 +188,16 @@ leftMenuItemDownloader?.addEventListener("click", () => {
 
 panelAlbumsTracksListCloseButton?.addEventListener("click", async () => {
   await panelManager.switchToPanel("panel-albums");
+});
+queueButton?.addEventListener("click", async () => {
+  if (queueContainer.classList.contains("hidden")) {
+    queueContainer.style.zIndex = "-1";
+    queueContainer.classList.remove("hidden");
+    await refreshQueue(true);
+    queueContainer.style.zIndex = "1";
+  } else {
+    queueContainer.classList.add("hidden");
+  }
 });
 
 soundButton?.addEventListener("click", async () => {
@@ -245,6 +266,8 @@ const initSoundInfos = (res: MusicInfos) => {
 const soundInterval = async () => {
   const currentInfos: MusicInfos = await invoke("sound_infos", {});
   if (currentInfos !== null && currentInfos !== undefined) {
+    currentTrack = currentInfos.file_infos;
+
     if (currentInfos.paused) {
       playButtonPause.classList.add("hidden");
       playButtonResume.classList.remove("hidden");
@@ -264,6 +287,71 @@ const soundInterval = async () => {
     noMusicCover?.classList.remove("hidden");
     musicTitle.textContent = "";
     musicSubtitle.textContent = "";
+  }
+};
+
+const appendQueueElement = (
+  elementsToAdd: string,
+  musicElement: [Track, Album | null],
+  isCurrent = false
+) => {
+  const cover =
+    musicElement[1] === null || musicElement[1].cover === 0
+      ? ""
+      : `<img class="w-[4.5rem] h-[4.5rem] rounded-lg object-cover" src="${convertFileSrc(
+          `${infos.covers_path}/${musicElement[1].uuid}.png`
+        )}">`;
+  const addHiddenForArtist =
+    musicElement[1] === null || musicElement[1].artist === null
+      ? " hidden"
+      : "";
+  const artist =
+    musicElement[1] === null || musicElement[1].artist === null
+      ? ""
+      : musicElement[1].artist;
+  const textColor = isCurrent ? "text-purple-300" : "text-white-1";
+  elementsToAdd += `
+      <div class="p-4 flex flex-row items-center justify-left space-x-4 hover:bg-dark-celeria cursor-pointer">
+        ${cover}
+        <div class="w-[10rem]">
+          <h2 class="${textColor} text-mukta text-lg break-properly font-bold">${musicElement[0].title}</h2>
+          <h3 class="${textColor} text-mukta break-properly text-md${addHiddenForArtist}">de ${artist}</h3>
+        </div>
+      </div>
+    `;
+  return elementsToAdd;
+};
+const refreshQueue = async (setScroll: boolean) => {
+  const queueInfos: MusicQueue = await invoke("queue_infos", {});
+
+  let elementsToAdd = "";
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const musicElement of queueInfos.previous) {
+    elementsToAdd = appendQueueElement(elementsToAdd, musicElement);
+  }
+
+  if (currentTrack !== null) {
+    elementsToAdd = appendQueueElement(elementsToAdd, currentTrack, true);
+  }
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const musicElement of queueInfos.next) {
+    elementsToAdd = appendQueueElement(elementsToAdd, musicElement);
+  }
+  queueContainer.innerHTML = elementsToAdd;
+
+  if (!setScroll) return;
+
+  const numberOfElement =
+    queueInfos.previous.length +
+    queueInfos.next.length +
+    (currentTrack === null ? 0 : 1);
+
+  if (numberOfElement !== 0) {
+    const elementHeight = queueContainer.scrollHeight / numberOfElement;
+
+    queueContainer.scroll(0, queueInfos.previous.length * elementHeight);
   }
 };
 
@@ -401,17 +489,17 @@ panelManager.registerPanel(
       const addCover =
         album.cover === 0
           ? ""
-          : `<img class="w-44 h-44 rounded-lg pt-2" src="${convertFileSrc(
+          : `<img class="w-44 h-44 rounded-lg object-cover" src="${convertFileSrc(
               `${infos.covers_path}/${album.uuid}.png`
             )}">`;
       const addHiddenForDiv = album.cover === 1 ? " hidden" : "";
 
-      htmlToAdd += `<div class="bg-dark-celeria w-[15rem] hover:w-[32rem] duration-500 ease-in-out h-80 p-8 rounded-sm group cursor-pointer m-4 album-element" uuid="${album.uuid}">
+      htmlToAdd += `<div class="relative bg-dark-celeria w-[14rem] h-[19rem] group pt-6 pl-6 pr-6 pb-3 rounded-sm group cursor-pointer m-4 album-element" uuid="${album.uuid}">
         ${addCover}
         <div class="w-44 h-44 rounded-lg bg-white-3${addHiddenForDiv}"></div>
-        <div class="w-[10rem] group-hover:w-[25rem] duration-500 ease-in-out h-[7rem]">
-          <h2 class="text-white-1 text-mukta text-2xl break-properly font-bold pt-2">${album.name}</h2>
-          <h3 class="pt-1 text-white-1 text-mukta break-properly text-xl${addHiddenForArtist}">${album.artist}</h3>
+        <div class="w-[10rem] mt-5">
+          <h2 class="text-white-1 text-mukta text-lg break-properly font-bold">${album.name}</h2>
+          <h3 class="text-white-1 text-mukta break-properly text-md${addHiddenForArtist}">${album.artist}</h3>
         </div>
     </div>`;
     }

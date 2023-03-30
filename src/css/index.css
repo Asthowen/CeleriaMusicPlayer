@@ -28,9 +28,8 @@
     background-size: cover;
 }
 #main-panel {
-    -webkit-background-size: cover;
+    background: url("/pictures/background.png") no-repeat center center;
     background-size: cover;
-    background: url("/pictures/background.png") no-repeat fixed center center;
 }
 #bottom-panel {
     background: rgb(5,64,89);
@@ -69,4 +68,8 @@
 }
 input:checked ~ .toggle-input-dot {
     transform: translateX(100%);
+}
+.album-element:hover {
+    filter: blur(0.8px);
+    backdrop-filter: blur(10px);
 }

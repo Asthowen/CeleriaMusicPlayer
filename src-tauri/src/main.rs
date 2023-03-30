@@ -172,6 +172,7 @@ async fn main() {
             commands::musics::next,
             commands::musics::set_volume,
             commands::musics::set_progress,
+            commands::musics::queue_infos,
             commands::library::list_albums::list_albums,
             commands::library::list_tracks::list_tracks,
             commands::library::album_infos::album_infos,
